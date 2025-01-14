@@ -76,9 +76,9 @@ A_MaxHotkeysPerInterval := 500
 ; Hook hotkeys are smart enough to ignore such keystrokes.
 #UseHook
 
-g_MouseSpeed := 10
-g_MouseAccelerationSpeed := 10
-g_MouseMaxSpeed := 30
+g_MouseSpeed := 1
+g_MouseAccelerationSpeed := 30
+g_MouseMaxSpeed := 40
 
 ;Mouse wheel speed is also set on Control Panel. As that
 ;will affect the normal mouse behavior, the real speed of
@@ -109,12 +109,12 @@ g_Temp2 := 0
 g_MouseRotationAnglePart := g_MouseRotationAngle / 45
 
 g_MouseCurrentAccelerationSpeed := 0
-g_MouseCurrentSpeed := g_MouseSpeed
+g_MouseCurrentSpeed := 0
 g_MouseCurrentSpeedToY := 0
 g_MouseCurrentSpeedToX := 0
 
 g_MouseWheelCurrentAccelerationSpeed := 0
-g_MouseWheelCurrentSpeed := g_MouseSpeed
+g_MouseWheelCurrentSpeed := 0
 g_MouseWheelAccelerationSpeedReal := 0
 g_MouseWheelMaxSpeedReal := 0
 g_MouseWheelSpeedReal := 0
@@ -146,22 +146,22 @@ Hotkey "*NumpadEnd", ButtonAcceleration
 Hotkey "*NumpadPgUp", ButtonAcceleration
 Hotkey "*NumpadPgDn", ButtonAcceleration
 
-Hotkey "Numpad8", ButtonSpeedUp
-Hotkey "Numpad2", ButtonSpeedDown
-Hotkey "Numpad7", ButtonAccelerationSpeedUp
-Hotkey "Numpad1", ButtonAccelerationSpeedDown
-Hotkey "Numpad9", ButtonMaxSpeedUp
-Hotkey "Numpad3", ButtonMaxSpeedDown
-
-Hotkey "Numpad6", ButtonRotationAngleUp
-Hotkey "Numpad4", ButtonRotationAngleDown
-
-Hotkey "!Numpad8", ButtonWheelSpeedUp
-Hotkey "!Numpad2", ButtonWheelSpeedDown
-Hotkey "!Numpad7", ButtonWheelAccelerationSpeedUp
-Hotkey "!Numpad1", ButtonWheelAccelerationSpeedDown
-Hotkey "!Numpad9", ButtonWheelMaxSpeedUp
-Hotkey "!Numpad3", ButtonWheelMaxSpeedDown
+;Hotkey "Numpad8", ButtonSpeedUp
+;Hotkey "Numpad2", ButtonSpeedDown
+;Hotkey "Numpad7", ButtonAccelerationSpeedUp
+;Hotkey "Numpad1", ButtonAccelerationSpeedDown
+;Hotkey "Numpad9", ButtonMaxSpeedUp
+;Hotkey "Numpad3", ButtonMaxSpeedDown
+;
+;Hotkey "Numpad6", ButtonRotationAngleUp
+;Hotkey "Numpad4", ButtonRotationAngleDown
+;
+;Hotkey "!Numpad8", ButtonWheelSpeedUp
+;Hotkey "!Numpad2", ButtonWheelSpeedDown
+;Hotkey "!Numpad7", ButtonWheelAccelerationSpeedUp
+;Hotkey "!Numpad1", ButtonWheelAccelerationSpeedDown
+;Hotkey "!Numpad9", ButtonWheelMaxSpeedUp
+;Hotkey "!Numpad3", ButtonWheelMaxSpeedDown
 
 ToggleKeyActivationSupport  ; Initialize based on current ScrollLock state.
 
@@ -196,22 +196,22 @@ ToggleKeyActivationSupport(*)
         Hotkey "*NumpadPgUp", "On"
         Hotkey "*NumpadPgDn", "On"
 
-        Hotkey "Numpad8", "On"
-        Hotkey "Numpad2", "On"
-        Hotkey "Numpad7", "On"
-        Hotkey "Numpad1", "On"
-        Hotkey "Numpad9", "On"
-        Hotkey "Numpad3", "On"
-
-        Hotkey "Numpad6", "On"
-        Hotkey "Numpad4", "On"
-
-        Hotkey "!Numpad8", "On"
-        Hotkey "!Numpad2", "On"
-        Hotkey "!Numpad7", "On"
-        Hotkey "!Numpad1", "On"
-        Hotkey "!Numpad9", "On"
-        Hotkey "!Numpad3", "On"
+;        Hotkey "Numpad8", "On"
+;        Hotkey "Numpad2", "On"
+;        Hotkey "Numpad7", "On"
+;        Hotkey "Numpad1", "On"
+;        Hotkey "Numpad9", "On"
+;        Hotkey "Numpad3", "On"
+;
+;        Hotkey "Numpad6", "On"
+;        Hotkey "Numpad4", "On"
+;
+;        Hotkey "!Numpad8", "On"
+;        Hotkey "!Numpad2", "On"
+;        Hotkey "!Numpad7", "On"
+;        Hotkey "!Numpad1", "On"
+;        Hotkey "!Numpad9", "On"
+;        Hotkey "!Numpad3", "On"
     }
     else
     {
@@ -235,22 +235,22 @@ ToggleKeyActivationSupport(*)
         Hotkey "*NumpadPgUp", "Off"
         Hotkey "*NumpadPgDn", "Off"
 
-        Hotkey "Numpad8", "Off"
-        Hotkey "Numpad2", "Off"
-        Hotkey "Numpad7", "Off"
-        Hotkey "Numpad1", "Off"
-        Hotkey "Numpad9", "Off"
-        Hotkey "Numpad3", "Off"
-
-        Hotkey "Numpad6", "Off"
-        Hotkey "Numpad4", "Off"
-
-        Hotkey "!Numpad8", "Off"
-        Hotkey "!Numpad2", "Off"
-        Hotkey "!Numpad7", "Off"
-        Hotkey "!Numpad1", "Off"
-        Hotkey "!Numpad9", "Off"
-        Hotkey "!Numpad3", "Off"
+;        Hotkey "Numpad8", "Off"
+;        Hotkey "Numpad2", "Off"
+;        Hotkey "Numpad7", "Off"
+;        Hotkey "Numpad1", "Off"
+;        Hotkey "Numpad9", "Off"
+;        Hotkey "Numpad3", "Off"
+;
+;        Hotkey "Numpad6", "Off"
+;        Hotkey "Numpad4", "Off"
+;
+;        Hotkey "!Numpad8", "Off"
+;        Hotkey "!Numpad2", "Off"
+;        Hotkey "!Numpad7", "Off"
+;        Hotkey "!Numpad1", "Off"
+;        Hotkey "!Numpad9", "Off"
+;        Hotkey "!Numpad3", "Off"
     }
 }
 
@@ -432,13 +432,14 @@ ButtonRotationAngleDown(*)
 ButtonAcceleration(ThisHotkey)
 {
     global
+    
+
+
     if g_Button != 0
     {
 	if !InStr(ThisHotkey, g_Button) 
         {
 	    g_Button2 := StrReplace(ThisHotkey, "*")
-            ;g_MouseCurrentAccelerationSpeed := g_MouseCurrentAccelerationSpeed/2
-            ;g_MouseCurrentSpeed := g_MouseSpeed*0.9
         }   
     }
 
@@ -453,46 +454,68 @@ SecondaryButton()
 {
     global
 
-g_MouseRotationAngle := 0
+    g_MouseRotationAngle := 0
 
-turn := 0
+    turn := 0
 
-east := 45
-west := 315
+    east := 45
+    west := 315
 
-if g_button = "NumpadUp" or g_button = "NumpadLeft"{
-    if g_Button2 = "NumpadUp"{
-	turn := east
-    }
-    if  g_Button2 = "NumpadDown"{
-	turn := west
-    }
-    
-    if g_Button2 = "NumpadRight"{
-    	turn := east
-    }
-    if g_Button2 = "NumpadLeft"{
-	turn := west
-    }
-}
-
-if g_button = "NumpadRight" or g_button = "NumpadDown"{
-    if g_Button2 = "NumpadUp"{
-	turn := west
-    }
-    if g_Button2 = "NumpadDown"{
-	turn := east
+    if g_button = "NumpadUp"{
+        if  g_Button2 = "NumpadDown"{
+            g_Button := g_Button2
+            g_Button2 := 0
+        }
+        
+        if g_Button2 = "NumpadRight"{
+            turn := east
+        }
+        if g_Button2 = "NumpadLeft"{
+        turn := west
+        }
     }
 
-    if g_Button2 = "NumpadRight"{
-	turn := west
-    }
-    if  g_Button2 = "NumpadLeft"{
-	turn := east
-    }
-}
+    if g_button = "NumpadLeft"{
+        if  g_Button2 = "NumpadRight"{
+            g_Button := g_Button2
+            g_Button2 := 0
+        }
 
+        if g_Button2 = "NumpadUp"{
+            turn := east
+        }
+        if  g_Button2 = "NumpadDown"{
+            turn := west
+        }
+    }
 
+    if g_button = "NumpadRight"{
+        if  g_Button2 = "NumpadLeft"{
+            g_Button := g_Button2
+            g_Button2 := 0
+        }
+        
+        if g_Button2 = "NumpadUp"{
+        turn := west
+        }
+        if g_Button2 = "NumpadDown"{
+        turn := east
+        }
+    }
+
+    if g_button = "NumpadDown"{
+        if  g_Button2 = "NumpadUp"{
+            g_Button := g_Button2
+            g_Button2 := 0
+        }
+        
+        if g_Button2 = "NumpadRight"{
+        turn := west
+        }
+        if  g_Button2 = "NumpadLeft"{
+        turn := east
+        }
+    }
 
     if GetKeyState(g_Button2, "P") 
     {
@@ -506,6 +529,11 @@ ButtonAccelerationStart()
 {
     global
 
+    if GetKeyState("LCtrl","P")
+    {
+        g_MouseCurrentSpeed := 5
+        g_MouseCurrentAccelerationSpeed := 1 
+    } 
 
     SecondaryButton
 
@@ -724,20 +752,23 @@ EndMouseCurrentSpeedToXCalculation()
 ButtonAccelerationEnd()
 {
     global
-
+    if GetKeyState(g_Button2, "P") and !GetKeyState(g_Button, "P")
+    {
+        g_Button := g_Button2
+        return
+    }
+    
     if GetKeyState(g_Button, "P")
     {
         ButtonAccelerationStart
         return
     }
 
-    SetTimer , 0
-    g_MouseCurrentAccelerationSpeed := 0
-    g_MouseCurrentSpeed := g_MouseSpeed
-    
     g_MouseRotationAngle := 0
     g_Button2 := 0
     g_Button := 0
+
+    SetTimer , 0
 }
 
 ;Mouse wheel movement support
