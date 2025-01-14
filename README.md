@@ -2,7 +2,7 @@
 
 # Kinesis Advantage 2 Notes
 
-##Quick Reference
+## Quick Reference
 | What |Key Combination |Notes|
 |------|----------------|-----|
 | Power User Mode |progm + shift + esc |Toggle On / Off|
