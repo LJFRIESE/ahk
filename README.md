@@ -1,5 +1,19 @@
 # README
 
+## Macros
+
+Hyper+a = Load all macros
+Hyper+r = Reload all loaded
+Scrollloack on = Numpad mouse
+
+## Tmp Macros
+
+F1
+Brief hold = Record
+Tap = Play
+Long hold = Review recorded macro
+
+
 # Kinesis Advantage 2 Notes
 
 ## Quick Reference
@@ -13,3 +27,5 @@
 | Activate Layout |progm + X |Where X is the hotkey|
 | Key Clicks |progm + F8 |Toggle clicking sound on/off|
 | Macro Speed |progm + F10 + 3 |Substitute "3" with 1 - 9. The default is three. Nine works well for most uses.|
+
+
