@@ -1,4 +1,7 @@
-﻿; Using Keyboard Numpad as a Mouse (based on the v1 script by deguix)
+﻿#NoTrayIcon
+#SingleInstance Force
+
+; Using Keyboard Numpad as a Mouse (based on the v1 script by deguix)
 ; https://www.autohotkey.com
 ; This script makes mousing with your keyboard almost as easy
 ; as using a real mouse (maybe even easier for some tasks).
@@ -66,7 +69,6 @@ o------------------------------------------------------------o
 
 ;START OF CONFIG SECTION
 
-#SingleInstance
 A_MaxHotkeysPerInterval := 500
 
 ; Using the keyboard hook to implement the Numpad hotkeys prevents

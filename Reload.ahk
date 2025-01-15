@@ -1,8 +1,10 @@
 #Requires AutoHotkey v2.0
+#NoTrayIcon
 #SingleInstance
 
-<^<!<+r::ReloadAllScripts()
+#Include Functions.ahk
 
+<^<!<+r::ReloadAllScripts()
 ; Function to reload all running AHK scripts
 ReloadAllScripts() {
     ; Enable detection of hidden windows since AHK windows might be hidden
@@ -12,7 +14,7 @@ ReloadAllScripts() {
     winList := WinGetList("ahk_class AutoHotkey")
     
     if !winList.Length {
-        MsgBox("No AutoHotkey scripts found running.")
+        FlashMessage("No AutoHotkey scripts found running.")
         return
     }
     
@@ -24,24 +26,26 @@ ReloadAllScripts() {
     
     ; Process each AHK window
     for hwnd in winList {
-        ; Get the window's title (which starts with the script path)
-        windowTitle := WinGetTitle("ahk_id " hwnd)
-        
-        ; Extract the script path from the window title
-        ; The title usually contains the path followed by " - AutoHotkey v2"
-        if (InStr(windowTitle, " - AutoHotkey")) {
-            scriptPath := SubStr(windowTitle, 1, InStr(windowTitle, " - AutoHotkey") - 1)
-        } else {
-            scriptPath := windowTitle  ; Fallback if title format is different
-        }
-        
-        ; Skip the current script to avoid self-termination
-        if (scriptPath = currentScript) {
-            continue
-        }
-        
-        ; Try to reload the script by sending the Reload command
         try {
+            ; Get the window's title (which starts with the script path)
+            windowTitle := WinGetTitle("ahk_id " hwnd)
+            
+            ; Extract the script path from the window title
+            ; The title usually contains the path followed by " - AutoHotkey v2"
+            if (InStr(windowTitle, " - AutoHotkey")) {
+                scriptPath := SubStr(windowTitle, 1, InStr(windowTitle, " - AutoHotkey") - 1)
+            } else {
+                scriptPath := windowTitle  ; Fallback if title format is different
+            }
+            
+            ; Skip the current script to avoid self-termination
+            if (scriptPath = currentScript) {
+                continue
+            }
+             ; Skip the master cause it breaks
+            if (InStr(scriptPath,"master.ahk")) {
+                continue
+            }           
             PostMessage(0x111, 65400, 0,, "ahk_id " hwnd)  ; 65400 is the Reload command
             reloadedCount++
             Sleep(100)  ; Give each script time to reload
@@ -52,10 +56,10 @@ ReloadAllScripts() {
     }
     
     ; Show results
-    resultMsg .= "Successfully reloaded: " reloadedCount "`n"
+    resultMsg := "Successfully reloaded: " reloadedCount "`n"
     if (failedCount > 0)
-        resultMsg .= "Failed to reload: " failedCount "`n"
+        resultMsg .= "Failed to reload: " failedCount
    
-    
-    MsgBox(resultMsg)
+   FlashMessage(resultMsg)
+    ;MsgBox(resultMsg)
 }
