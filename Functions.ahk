@@ -15,8 +15,8 @@ Join(arr, delimiter := ",") {
 }
 
 ; Create GUI for status popup
-class ScriptStatusGui {
-    static Show(message, duration := 2000) {
+ScriptStatusGui(message, duration := 3000)
+ {
         statusGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
         statusGui.SetFont("s10", "Segoe UI")
         statusGui.Add("Text",, message)
@@ -25,7 +25,9 @@ class ScriptStatusGui {
         ; Position at bottom right of primary monitor
         MonitorGetWorkArea(1, &left, &top, &right, &bottom)
         statusGui.Show("NoActivate x" . (right - 300) . " y" . (bottom - 100) . " w280")
-        
+
+        statusGui.Show() 
+
         SetTimer(() => statusGui.Destroy(), -duration)
-    }
+    
 }

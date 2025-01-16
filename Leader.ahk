@@ -1,4 +1,6 @@
 #Requires AutoHotkey v2.0
+#SingleInstance
+#Warn
 
 ; Global variables
 global doubleTapTimeout := 400  ; ms

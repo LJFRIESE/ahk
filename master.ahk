@@ -25,7 +25,7 @@ RunAllScripts() {
             scriptCount++
             startedScripts.Push(A_LoopFileName)
         } catch Error as e {
-            MsgBox "Failed to run: " A_LoopFilePath "`nError: " e.Message
+            ScriptStatusGui("Failed to run: " . A_LoopFilePath . "`nError: " . e.Message)
         }
             
         Sleep(100)
@@ -37,7 +37,7 @@ RunAllScripts() {
         message .= Join(startedScripts, "`n")
         ScriptStatusGui.Show(message, 3000)
     } else {
-        ScriptStatusGui.Show("No new scripts started", 2000)
+        ScriptStatusGui.Show("No new scripts started")
     }
 }
 
@@ -63,7 +63,7 @@ ShowActiveScripts() {
         message := "No active scripts found"
     }
     
-    ScriptStatusGui.Show(message)
+    ScriptStatusGui(message)
 }
 
 ; Hotkeys
