@@ -58,7 +58,7 @@ A_MaxHotkeysPerInterval := 500
 ; Speed is in pixels/tick
 ; This means speed is relative to resolution
 g_MouseSpeed := 5
-g_MouseAccelerationSpeed := 70 
+g_MouseAccelerationSpeed := 70
 g_MouseMaxSpeed := 45
 
 ;Mouse wheel speed is also set on Control Panel. As that
@@ -269,17 +269,17 @@ ButtonAcceleration(ThisHotkey)
 
     if g_Button != 0
     {
-	if !InStr(ThisHotkey, g_Button) 
+	if !InStr(ThisHotkey, g_Button)
         {
 	    g_Button2 := StrReplace(ThisHotkey, "*")
-        }   
+        }
     }
 
     if g_Button == 0
     {
         g_Button := StrReplace(ThisHotkey, "*")
     }
-    ButtonAccelerationStart         
+    ButtonAccelerationStart
 }
 
 ButtonJump(ThisHotkey)
@@ -290,7 +290,7 @@ ButtonJump(ThisHotkey)
     {
         g_Button := StrReplace(ThisHotkey, "*")
     }
-; Diagonal jumps    
+; Diagonal jumps
    if g_Button = "NumpadHome"
     {
         MouseMove -15, -15, 0, "R"
@@ -322,9 +322,7 @@ ButtonJump(ThisHotkey)
     {
         MouseMove 155,15, 0, "R"
     }
-   g_button := 0 
-
-   g_button := 0 
+   g_button := 0
 }
 
 SecondaryButton()
@@ -343,7 +341,7 @@ SecondaryButton()
             g_Button := g_Button2
             g_Button2 := 0
         }
-        
+
         if g_Button2 = "NumpadRight"{
             turn := east
         }
@@ -371,7 +369,7 @@ SecondaryButton()
             g_Button := g_Button2
             g_Button2 := 0
         }
-        
+
         if g_Button2 = "NumpadUp"{
         turn := west
         }
@@ -385,7 +383,7 @@ SecondaryButton()
             g_Button := g_Button2
             g_Button2 := 0
         }
-        
+
         if g_Button2 = "NumpadRight"{
         turn := west
         }
@@ -394,12 +392,12 @@ SecondaryButton()
         }
     }
 
-    if GetKeyState(g_Button2, "P") 
+    if GetKeyState(g_Button2, "P")
     {
         g_MouseRotationAngle := turn
         return
     }
-    
+
 }
 
 ButtonAccelerationStart()
@@ -409,8 +407,8 @@ ButtonAccelerationStart()
     if GetKeyState("Backspace","P")
     {
         g_MouseCurrentSpeed := 5
-        g_MouseCurrentAccelerationSpeed := 1 
-    } 
+        g_MouseCurrentAccelerationSpeed := 1
+    }
 
     SecondaryButton
 
@@ -596,7 +594,7 @@ ButtonAccelerationEnd()
         g_Button := g_Button2
         return
     }
-    
+
     if GetKeyState(g_Button, "P")
     {
         ButtonAccelerationStart
