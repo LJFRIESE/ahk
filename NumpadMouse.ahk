@@ -248,7 +248,7 @@ ButtonX2Click(*)
 
 ButtonClickStart(Button2, ButtonClick)
 {
-    MouseClick ButtonClick,,, 1, 0, "D"
+    MouseClick ButtonClick, , , 1, 0, "D"
     SetTimer ButtonClickEnd.Bind(Button2, ButtonClick), 10
 }
 
@@ -258,7 +258,7 @@ ButtonClickEnd(Button2, ButtonClick)
         return
 
     SetTimer , 0
-    MouseClick ButtonClick,,, 1, 0, "U"
+    MouseClick ButtonClick, , , 1, 0, "U"
 }
 
 ;Mouse movement support
@@ -269,9 +269,9 @@ ButtonAcceleration(ThisHotkey)
 
     if g_Button != 0
     {
-	if !InStr(ThisHotkey, g_Button)
+        if !InStr(ThisHotkey, g_Button)
         {
-	    g_Button2 := StrReplace(ThisHotkey, "*")
+            g_Button2 := StrReplace(ThisHotkey, "*")
         }
     }
 
@@ -290,15 +290,15 @@ ButtonJump(ThisHotkey)
     {
         g_Button := StrReplace(ThisHotkey, "*")
     }
-; Diagonal jumps
-   if g_Button = "NumpadHome"
+    ; Diagonal jumps
+    if g_Button = "NumpadHome"
     {
         MouseMove -15, -15, 0, "R"
     }
     else if g_Button = "NumpadPgUp"
     {
         MouseMove 15, -15, 0, "R"
-    }else if g_Button = "NumpadEnd"
+    } else if g_Button = "NumpadEnd"
     {
         MouseMove -15, 15, 0, "R"
     }
@@ -306,23 +306,23 @@ ButtonJump(ThisHotkey)
     {
         MouseMove 15, 15, 0, "R"
     }
-; Cardinal jumps
-   if g_Button = "Up"
+    ; Cardinal jumps
+    if g_Button = "Up"
     {
         MouseMove 0, 15, 0, "R"
     }
     else if g_Button = "Down"
     {
         MouseMove 0, -15, 0, "R"
-    }else if g_Button = "Left"
+    } else if g_Button = "Left"
     {
         MouseMove -15, 0, 0, "R"
     }
     else if g_Button = "Right"
     {
-        MouseMove 155,15, 0, "R"
+        MouseMove 155, 15, 0, "R"
     }
-   g_button := 0
+    g_button := 0
 }
 
 SecondaryButton()
@@ -336,59 +336,59 @@ SecondaryButton()
     east := 45
     west := 315
 
-    if g_button = "NumpadUp"{
-        if  g_Button2 = "NumpadDown"{
+    if g_button = "NumpadUp" {
+        if g_Button2 = "NumpadDown" {
             g_Button := g_Button2
             g_Button2 := 0
         }
 
-        if g_Button2 = "NumpadRight"{
+        if g_Button2 = "NumpadRight" {
             turn := east
         }
-        if g_Button2 = "NumpadLeft"{
-        turn := west
-        }
-    }
-
-    if g_button = "NumpadLeft"{
-        if  g_Button2 = "NumpadRight"{
-            g_Button := g_Button2
-            g_Button2 := 0
-        }
-
-        if g_Button2 = "NumpadUp"{
-            turn := east
-        }
-        if  g_Button2 = "NumpadDown"{
+        if g_Button2 = "NumpadLeft" {
             turn := west
         }
     }
 
-    if g_button = "NumpadRight"{
-        if  g_Button2 = "NumpadLeft"{
+    if g_button = "NumpadLeft" {
+        if g_Button2 = "NumpadRight" {
             g_Button := g_Button2
             g_Button2 := 0
         }
 
-        if g_Button2 = "NumpadUp"{
-        turn := west
+        if g_Button2 = "NumpadUp" {
+            turn := east
         }
-        if g_Button2 = "NumpadDown"{
-        turn := east
+        if g_Button2 = "NumpadDown" {
+            turn := west
         }
     }
 
-    if g_button = "NumpadDown"{
-        if  g_Button2 = "NumpadUp"{
+    if g_button = "NumpadRight" {
+        if g_Button2 = "NumpadLeft" {
             g_Button := g_Button2
             g_Button2 := 0
         }
 
-        if g_Button2 = "NumpadRight"{
-        turn := west
+        if g_Button2 = "NumpadUp" {
+            turn := west
         }
-        if  g_Button2 = "NumpadLeft"{
-        turn := east
+        if g_Button2 = "NumpadDown" {
+            turn := east
+        }
+    }
+
+    if g_button = "NumpadDown" {
+        if g_Button2 = "NumpadUp" {
+            g_Button := g_Button2
+            g_Button2 := 0
+        }
+
+        if g_Button2 = "NumpadRight" {
+            turn := west
+        }
+        if g_Button2 = "NumpadLeft" {
+            turn := east
         }
     }
 
@@ -404,7 +404,7 @@ ButtonAccelerationStart()
 {
     global
 
-    if GetKeyState("Backspace","P")
+    if GetKeyState("Backspace", "P")
     {
         g_MouseCurrentSpeed := 5
         g_MouseCurrentAccelerationSpeed := 1
@@ -640,9 +640,9 @@ ButtonWheelAccelerationStart()
     }
 
     if g_Button = "NumpadAdd"
-        MouseClick "WheelUp",,, g_MouseWheelCurrentSpeed, 0, "D"
+        MouseClick "WheelUp", , , g_MouseWheelCurrentSpeed, 0, "D"
     else if g_Button = "NumpadEnter"
-        MouseClick "WheelDown",,, g_MouseWheelCurrentSpeed, 0, "D"
+        MouseClick "WheelDown", , , g_MouseWheelCurrentSpeed, 0, "D"
 
     SetTimer ButtonWheelAccelerationEnd, 100
 }

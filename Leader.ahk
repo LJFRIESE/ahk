@@ -29,18 +29,18 @@ WaitForChoice(name, options*) {
 
         if index < options.Length
             tooltipStr .= "`n"
-            endKeys .= ","
+        endKeys .= ","
     }
 
     ; === Tooltip + Wait for input ===
     ToolTip(tooltipStr)
-    
+
     ih := InputHook("L1", "{Pause}{Esc}{Enter}", endKeys)
     ih.Start()
     ih.Wait()
-    
+
     ToolTip()
-    
+
     if ih.EndReason = "EndKey" && ih.EndKey = "Escape"
         return
 

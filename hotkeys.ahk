@@ -6,6 +6,6 @@
 
 ^+Left::#+Left
 ^+Right::#+Right
-^+Up::#+Up    
+^+Up::#+Up
 ^+Down::#+Down
 ^+L::#+l

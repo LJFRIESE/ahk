@@ -204,7 +204,7 @@ EditKeyAction() {
   try {
     RegDelete("HKEY_CURRENT_USER\SOFTWARE\" LogFileName, "i")
   } catch OSError as err {
-    
+
   }
   Run("`"" EnvGet("LocalAppData") "\Microsoft\WindowsApps\Notepad.exe`" `"" LogFile "`"")
   return
@@ -357,7 +357,7 @@ Log(str := "", Keyboard := false) {
     return
   }
 
-  if (Delay > 200) 
+  if (Delay > 200)
     LogArr.Push((RecordSleep == "false" ? ";" : "") "Sleep(" (Delay // 2) ")")
   LogArr.Push(Keyboard ? "Send `"{Blind}" str "`"" : str)
 }
