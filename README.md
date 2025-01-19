@@ -1,17 +1,6 @@
 # README
 
-## Macros
-
-Hyper+a = Load all macros
-Hyper+r = Reload all loaded
-Scrollloack on = Numpad mouse
-
-## Tmp Macros
-
-F1
-Brief hold = Record
-Tap = Play
-Long hold = Review recorded macro
+`^h` to bring up help menu
 
 # Kinesis Advantage 2 Notes
 
