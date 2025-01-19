@@ -12,8 +12,12 @@ HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+s", "RunAllScripts")
 HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+l", "ShowActiveScripts")
 HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+r", "ReloadAllScripts")
 
-; Misc
+; Hotkeys
+HotkeyGuide.RegisterHotkey("Hotkeys", "^Space", "Leader")
+HotkeyGuide.RegisterHotkey("Hotkeys", "{Leader}Space", "Menu")
 HotkeyGuide.RegisterHotkey("Hotkeys", "^+S", "SnippingTool")
+
+; Misc
 HotkeyGuide.RegisterHotkey("Misc", "<^<!<+#F1", "Edit Registry for Neovim defaults")
 
 ; Example default usage
