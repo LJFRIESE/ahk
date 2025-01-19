@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance
 #Warn
+#Include HotkeyGuide.ahk
 
 ; Global variables
 global doubleTapTimeout := 400  ; ms
@@ -66,6 +67,7 @@ WaitForChoice(name, options*) {
 }
 
 ; === The Leader Hotkey (Double-tap Space) ===
+
 ~Space:: {
     global lastSpacePress, doubleTapTimeout
     timeNow := A_TickCount

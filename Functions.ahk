@@ -1,7 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance
 #Warn
-#NoTrayIcon
 
 ; Utility function
 Join(arr, delimiter := ",") {
@@ -31,3 +30,83 @@ ScriptStatusGui(message, duration := 3000)
     SetTimer(() => statusGui.Destroy(), -duration)
 
 }
+
+    global windowWidth := A_ScreenWidth*.7
+    global windowHight := A_ScreenHeight*.7
+
+class HotkeyGuide {
+    static overlayGui := false
+    static globalRegistry := Map()
+
+    static RegisterHotkey(script, hotkeyStr, description) {
+        if !this.globalRegistry.Has(script)
+            this.globalRegistry[script] := Map()
+        this.globalRegistry[script][hotkeyStr] := description
+    }
+
+    static Show() {
+        if this.overlayGui {
+            this.overlayGui.Destroy()
+            this.overlayGui := false
+        }
+        this.CreateOverlay()
+        this.overlayGui.Show("AutoSize") ;"w" windowWidth " h" windowHight)
+    }
+
+    static Hide() {
+        if this.overlayGui
+            this.overlayGui.Hide()
+    }
+
+    static CreateOverlay() {
+        this.overlayGui := Gui("+AlwaysOnTop -Caption +E0x20 +Owner")
+        this.overlayGui.BackColor := "222222"
+        this.overlayGui.MarginY := 10
+
+        WinSetTransparent(200, this.overlayGui)
+	
+        itemsPerRow := 5
+	
+	groups := this.globalRegistry.Count
+
+        for scriptName, hotkeys in this.globalRegistry {
+	    this.overlayGui.SetFont("s10 w600")
+		; Title
+	    this.overlayGui.Add("Text", "Section XM YP+40 cFFFFFF", scriptName)	
+		item := 0
+
+            for key, desc in hotkeys {
+    		this.overlayGui.SetFont("s10 w400")
+		; Key
+		this.overlayGui.Add("Text", "XM cFFFFFF", this.FormatHotkeyString(key))
+        	; Description        
+		this.overlayGui.Add("Text", "YP cCCCCCC", desc)
+                item += 1
+	   }
+        }
+
+        this.overlayGui.Add("Text", "YP+50 Center cFFFFFF", "Press Escape to Close")
+        this.overlayGui.OnEvent("Escape", (*) => this.Hide())
+    }
+
+   ; static AddSection(title, items) {
+    ;    
+    ;}
+
+    static FormatHotkeyString(hotkeyStr) {
+	formatted := StrReplace(hotkeyStr, "<^<!<+#", "Hyper-")
+	formatted := StrReplace(formatted, "<^<!<+", "Meh-")
+        formatted := StrReplace(formatted, "<", "L") ;Has to happen after Meh/Hyper
+        formatted := StrReplace(formatted, ">", "R") ;Has to happen after Meh/Hyper
+        formatted := StrReplace(formatted, "+", "Shift+") ;Has to happen after Meh/Hyper
+        formatted := StrReplace(formatted, "^", "Ctrl+")
+        formatted := StrReplace(formatted, "!", "Alt+")
+        formatted := StrReplace(formatted, "#", "Win+")
+        formatted := StrReplace(formatted, "-", "+") ; Clean up the Meh/Hyper
+        return formatted
+    }
+}
+
+
+^h::HotkeyGuide.Show()
+Esc::HotkeyGuide.Hide()
