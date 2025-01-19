@@ -14,6 +14,7 @@ HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+r", "ReloadAllScripts")
 
 ; Misc
 HotkeyGuide.RegisterHotkey("Hotkeys", "^+S", "SnippingTool")
+HotkeyGuide.RegisterHotkey("Misc", "<^<!<+#F1", "Edit Registry for Neovim defaults")
 
 ; Example default usage
 ; HotkeyGuide.RegisterHotkey("Help", "^h", "Show Hotkey Guide")
@@ -23,10 +24,10 @@ HotkeyGuide.RegisterHotkey("Numpad Mouse", "ScrollLock", "Enable/disable Numpad 
 HotkeyGuide.RegisterHotkey("Numpad Mouse", "NumLock", "Activate NumpadMouse")
 
 
-^Left::#Left
-^Right::#Right
-^Up::#Up
-^Down::#Down
+^+Left::#Left
+^+Right::#Right
+^+Up::#Up
+^+Down::#Down
 
 ^+S::Run "SnippingTool"
 

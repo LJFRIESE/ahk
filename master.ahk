@@ -73,14 +73,22 @@ KillActiveScripts() {
     DetectHiddenWindows(true)
     winList := WinGetList("ahk_class AutoHotkey")
     killedScripts := []
-    currentScriptId := WinGetID("A")  ; Get current script's window ID
+    scripts := WinGetList("ahk_class AutoHotkey")
+    ; Loop through each script window
+    for hwnd in scripts {
+        ; Get the process ID of the script
+        pid := WinGetPID(hwnd)
 
-    for hwnd in winList {
-        ; Skip the current script to avoid self-termination
-        if (hwnd = currentScriptId)
-            continue
+        ; Get the process name to verify it's an AHK script
+        procName := WinGetProcessName(hwnd)
 
-            killedScripts.Push(scriptName)
+        ; Only close if it's actually an AutoHotkey process
+        if (InStr(procName, "AutoHotkey")) {
+            ; Skip the current script
+            if (pid != ProcessExist()) {
+                killedScripts.Push(pid)
+                ProcessClose(pid)
+            }
         }
     }
 
