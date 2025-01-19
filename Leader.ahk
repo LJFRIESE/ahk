@@ -92,6 +92,10 @@ Menu_Mails() {
 ; === The Leader Hotkey  ===
 ; Ctrl+Space activates capslock for one second.
 ; Hotif Capslock T makes hotkey only active while capslock is active
+; Could be made better with a global var or something, but this is easier to have work
+; between different scripts. They can do the hotif without issue. I don't use capslock
+; anyways.
+
 TurnOffCapsLock() {
     SetCapsLockState "Off"
 }
