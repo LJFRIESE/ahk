@@ -1,9 +1,10 @@
 #Requires AutoHotkey v2.0
+#NoTrayIcon
 #SingleInstance
 #Warn
 
 ; Global variables
-global doubleTapTimeout := 400  ; ms
+global doubleTapTimeout := 250  ; ms
 global lastSpacePress := 0
 
 ; === The Helper function ===

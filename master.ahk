@@ -80,13 +80,6 @@ KillActiveScripts() {
         if (hwnd = currentScriptId)
             continue
 
-        windowTitle := WinGetTitle("ahk_id " hwnd)
-        if InStr(windowTitle, " - AutoHotkey") {
-            scriptPath := SubStr(windowTitle, 1, InStr(windowTitle, " - AutoHotkey") - 1)
-            SplitPath(scriptPath, &scriptName)
-
-            ; Attempt to close the script
-            WinClose("ahk_id " hwnd)
             killedScripts.Push(scriptName)
         }
     }
