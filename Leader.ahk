@@ -66,30 +66,6 @@ WaitForChoice(name, options*) {
     return choice
 }
 
-; === The Leader Hotkey (Double-tap Space) ===
-
-; ~Space:: {
-;     global lastSpacePress, doubleTapTimeout
-;     timeNow := A_TickCount
-;     if (timeNow - lastSpacePress < doubleTapTimeout) {
-;         ; Double-tap detected
-;         WaitForChoice("Macros"
-;             , ["t", "Tests"]
-;             , ["w", "Windows"]
-;             , ["m", "Mails"])
-;         lastSpacePress := 0  ; Reset the timer
-;     } else {
-;         lastSpacePress := timeNow
-;     }
-; }
-;
-
-~<^<*<+#:: {
-        WaitForChoice("Macros"
-            , ["t", "Tests"]
-            , ["w", "Windows"]
-            , ["m", "Mails"])
-}
 
 ; === Menu functions ===
 Menu_Tests() {
@@ -113,3 +89,25 @@ Menu_Mails() {
         , ["p", "Pro", "pro@mail.com"]
         , ["h", "Hobby", "hobby@mail.com"])
 }
+; === The Leader Hotkey  ===
+; Ctrl+Space activates capslock for one second.
+; Hotif Capslock T makes hotkey only active while capslock is active
+TurnOffCapsLock() {
+    SetCapsLockState "Off"
+}
+
+^Space:: {
+    SetCapsLockState "On"
+    SetTimer TurnOffCapsLock, -1500  ; Negative value means run only once
+    return
+}
+
+
+#HotIf GetKeyState("CapsLock", "T")
+Space:: {
+        WaitForChoice("Macros"
+            , ["t", "Tests"]
+            , ["w", "Windows"]
+            , ["m", "Mails"])
+}
+#Hotif
