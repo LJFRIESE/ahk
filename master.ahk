@@ -19,6 +19,8 @@ RunAllScripts() {
     Loop Files A_WorkingDir "\*.ahk" {
         if (A_LoopFilePath = A_ScriptFullPath)
             continue
+        if (InStr(A_LoopFilePath, "HotkeyGuide"))
+            continue
 
         try {
             Run A_LoopFilePath
@@ -35,10 +37,11 @@ RunAllScripts() {
     if scriptCount > 0 {
         message := "Started " scriptCount " scripts:`n"
         message .= Join(startedScripts, "`n")
-        ScriptStatusGui.Show(message, 3000)
+        ScriptStatusGui(message, 3000)
     } else {
-        ScriptStatusGui.Show("No new scripts started")
+        ScriptStatusGui("No new scripts started")
     }
+
 }
 
 ; Show active scripts

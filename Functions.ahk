@@ -2,6 +2,33 @@
 #SingleInstance
 #Warn
 
+; Macro record
+HotkeyGuide.RegisterHotkey("Macros", "F1{short hold}", "Record")
+HotkeyGuide.RegisterHotkey("Macros", "F1{long hold}", "Inspect recording")
+
+; AHK Control
+HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+s", "RunAllScripts")
+HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+l", "ShowActiveScripts")
+HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+r", "ReloadAllScripts")
+
+; Misc
+HotkeyGuide.RegisterHotkey("Hotkeys", "^+S", "SnippingTool")
+
+; Example default usage
+; HotkeyGuide.RegisterHotkey("Help", "^h", "Show Hotkey Guide")
+
+; Numpad Mouse
+HotkeyGuide.RegisterHotkey("Numpad Mouse", "ScrollLock", "Enable/disable Numpad Mouse")
+HotkeyGuide.RegisterHotkey("Numpad Mouse", "NumLock", "Activate NumpadMouse")
+
+
+^Left::#Left
+^Right::#Right
+^Up::#Up
+^Down::#Down
+
+^+S::Run "SnippingTool"
+
 ; Utility function
 Join(arr, delimiter := ",") {
     result := ""
@@ -50,7 +77,8 @@ class HotkeyGuide {
             this.overlayGui := false
         }
         this.CreateOverlay()
-        this.overlayGui.Show("AutoSize") ;"w" windowWidth " h" windowHight)
+        this.overlayGui.Show("AutoSize")
+
     }
 
     static Hide() {
@@ -62,35 +90,34 @@ class HotkeyGuide {
         this.overlayGui := Gui("+AlwaysOnTop -Caption +E0x20 +Owner")
         this.overlayGui.BackColor := "222222"
         this.overlayGui.MarginY := 10
-
+        this.overlayGui.OnEvent('Escape', (*) => this.overlayGui.Hide())
         WinSetTransparent(200, this.overlayGui)
-	
+
         itemsPerRow := 5
-	
+
 	groups := this.globalRegistry.Count
 
         for scriptName, hotkeys in this.globalRegistry {
 	    this.overlayGui.SetFont("s10 w600")
 		; Title
-	    this.overlayGui.Add("Text", "Section XM YP+40 cFFFFFF", scriptName)	
+	    this.overlayGui.Add("Text", "Section XM YP+40 cFFFFFF", scriptName)
 		item := 0
 
             for key, desc in hotkeys {
     		this.overlayGui.SetFont("s10 w400")
 		; Key
 		this.overlayGui.Add("Text", "XM cFFFFFF", this.FormatHotkeyString(key))
-        	; Description        
+        	; Description
 		this.overlayGui.Add("Text", "YP cCCCCCC", desc)
                 item += 1
 	   }
         }
 
         this.overlayGui.Add("Text", "YP+50 Center cFFFFFF", "Press Escape to Close")
-        this.overlayGui.OnEvent("Escape", (*) => this.Hide())
     }
 
    ; static AddSection(title, items) {
-    ;    
+    ;
     ;}
 
     static FormatHotkeyString(hotkeyStr) {
@@ -109,4 +136,3 @@ class HotkeyGuide {
 
 
 ^h::HotkeyGuide.Show()
-Esc::HotkeyGuide.Hide()

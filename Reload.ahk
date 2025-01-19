@@ -10,7 +10,7 @@ ReloadAllScripts() {
     winList := WinGetList("ahk_class AutoHotkey")
 
     if !winList.Length {
-        ScriptStatusGui.Show("No AutoHotkey scripts found running")
+        ScriptStatusGui("No AutoHotkey scripts found running")
         return
     }
 
@@ -48,7 +48,7 @@ ReloadAllScripts() {
         message .= "`n`nFailed Scripts:`n"
         message .= Join(failedScripts, "`n")
     }
-    ScriptStatusGui.Show(message, 3500)
+    ScriptStatusGui(message, 3500)
 }
 
 <^<!<+r:: ReloadAllScripts()
