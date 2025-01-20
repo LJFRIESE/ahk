@@ -13,19 +13,12 @@ WaitForChoice(name, options*) {
     menuFunctionsDict := Map()
     sendInputDict := Map()
     endKeys := ""
-    
+
     for index, option in options {
-        if Type(option) = "String" {
-            tooltipStr .= option
-            endKeys .= option
-            menuFunctionsDict[option] := option
-        } else {
+
             tooltipStr .=  option[1] . ": " . option[2]
             endKeys .= option[1]
             menuFunctionsDict[option[1]] := option[2]
-            if option.Length >= 3
-                sendInputDict[option[1]] := option[3]
-        }
         if index < options.Length
             tooltipStr .= "`n"
         endKeys .= ","
@@ -37,7 +30,7 @@ WaitForChoice(name, options*) {
     ih.Start()
     ih.Wait()
     ToolTip()
-    
+
     if ih.EndReason = "EndKey" && ih.EndKey = "Escape"
         return
 
@@ -45,49 +38,81 @@ WaitForChoice(name, options*) {
     if !menuFunctionsDict.Has(choice)
         return
 
-    toSend := sendInputDict.Has(choice) ? sendInputDict[choice] : ""
     menuChoice := menuFunctionsDict[choice]
 
-    if toSend {
-        SendInput(toSend)
-    } else {
-        ; Call the menu function directly based on the choice
+    ; if there is a menu matched by the input, call the menu function directly
+    try {
         Menu_%menuChoice%()
     }
-    return choice
+    ; No menu, try options
+    catch {
+        return choice
+    }
 }
 
 ; === Menu functions ===
-; 3rd option triggers send. If only 2 options, it goes to new submenu
+; 1st option is the option key
+; 2nd option is the option description
 Menu_Config() {
-    choice := WaitForChoice("[C]onfig", 
-        ["1", "Run runOpenWithConfigurator",true], 
-        ["2", "test", true])
-    
-    switch choice {
-        case "1": 
-            #Include openWith.ahk 
+    choice := WaitForChoice("[C]onfig",
+        ["1", "Run runOpenWithConfigurator"],
+        ["2", "test"])
+
+    switch choice, 0 {
+        case "1":
+            #Include openWith.ahk
             runOpenWithConfigurator()
-        case "2": 
+        case "2":
             SendInput("Test text 2")
+        default:
+            Menu_Main()
     }
 }
 
-Menu_Windows() {
-    choice := WaitForChoice("w (Window)", 
-        ["max", "Maximize"], 
-        ["r", "Restore"])
-    
-    switch choice {
-        case "max": WinMaximize("A")
-        case "r": WinRestore("A")
+Menu_Applications() {
+    choice := WaitForChoice("[A]pplications",
+        ["o", "Outlook"],
+        ["v", "VMWare"])
+
+    switch choice, 0 {
+        case "o":
+            if (!ProcessExist("outlook.exe"))
+                {
+                Run("outlook.exe")
+                Sleep 15000  ;can change this is want
+                }
+            outlookApp := ComObjActive("Outlook.Application")
+
+            MailItem := outlookApp.CreateItem(0)
+            MailItem.Display
+
+        case "v":
+            return
+        default:
+            Menu_Main()
     }
 }
 
-Menu_Mails() {
-    WaitForChoice("m (Mails)",
-        ["p", "Pro", "pro@mail.com"],
-        ["h", "Hobby", "hobby@mail.com"])
+Menu_Files() {
+    choice := WaitForChoice("[F]iles",
+        ["1", "Report Inventory"],
+        ["2", "Ad Hoc Tracker"])
+
+    switch choice, 0 {
+        case "1":
+            Run("M:\\REPORTS\\Report Inventory.xlsx")
+        case "2":
+            Run("M:\\REPORTS\\AD HOC\\Ad Hoc Request Tracker.xlsx")
+        default:
+            Menu_Main()
+        }
+}
+
+Menu_Main() {
+    choice := WaitForChoice("Main menu",
+        ["c", "Config"],
+        ["a", "Applications"],
+        ["f", "Files"])
 }
 
 ; === The Leader Hotkey  ===
@@ -97,14 +122,9 @@ TurnOffCapsLock() {
 
 ~!Space:: {
     SetCapsLockState "On"
-    SetTimer(TurnOffCapsLock, -1500)  ; Negative value means run only once
+    SetTimer(TurnOffCapsLock, -1000)  ; Negative value means run only once
 }
 
 #HotIf GetKeyState("CapsLock", "T")
-Space:: {
-    WaitForChoice("Macros",
-        ["c", "Config"],
-        ["w", "Windows"],
-        ["m", "Mails"])
-}
+Space:: Menu_Main()
 #HotIf
