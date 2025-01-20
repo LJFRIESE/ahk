@@ -1,5 +1,4 @@
 #Requires AutoHotkey v2.0
-#NoTrayIcon
 #SingleInstance
 #Warn
 
@@ -14,20 +13,19 @@ WaitForChoice(name, options*) {
     menuFunctionsDict := Map()
     sendInputDict := Map()
     endKeys := ""
-
+    
     for index, option in options {
         if Type(option) = "String" {
-            tooltipStr .= "+ " . option
+            tooltipStr .= option
             endKeys .= option
             menuFunctionsDict[option] := option
         } else {
-            tooltipStr .= "+ " . option[1] . " => " . option[2]
+            tooltipStr .=  option[1] . ": " . option[2]
             endKeys .= option[1]
             menuFunctionsDict[option[1]] := option[2]
             if option.Length >= 3
                 sendInputDict[option[1]] := option[3]
         }
-
         if index < options.Length
             tooltipStr .= "`n"
         endKeys .= ","
@@ -35,49 +33,51 @@ WaitForChoice(name, options*) {
 
     ; === Tooltip + Wait for input ===
     ToolTip(tooltipStr)
-
     ih := InputHook("L1", "{Pause}{Esc}{Enter}", endKeys)
     ih.Start()
     ih.Wait()
-
     ToolTip()
-
+    
     if ih.EndReason = "EndKey" && ih.EndKey = "Escape"
         return
 
     choice := ih.Input
-
     if !menuFunctionsDict.Has(choice)
         return
 
     toSend := sendInputDict.Has(choice) ? sendInputDict[choice] : ""
-    menuFunc := "Menu_" . menuFunctionsDict[choice]
+    menuChoice := menuFunctionsDict[choice]
 
     if toSend {
         SendInput(toSend)
     } else {
-        try {
-            funcObj := %menuFunc%
-            if funcObj is Func
-                funcObj()
-        }
+        ; Call the menu function directly based on the choice
+        Menu_%menuChoice%()
     }
-
     return choice
 }
 
-
 ; === Menu functions ===
-Menu_Tests() {
-    choice := WaitForChoice("t (Tests)", "1", "2")
+; 3rd option triggers send. If only 2 options, it goes to new submenu
+Menu_Config() {
+    choice := WaitForChoice("[C]onfig", 
+        ["1", "Run runOpenWithConfigurator",true], 
+        ["2", "test", true])
+    
     switch choice {
-        case "1": SendInput("Test text 1")
-        case "2": SendInput("Test text 2")
+        case "1": 
+            #Include openWith.ahk 
+            runOpenWithConfigurator()
+        case "2": 
+            SendInput("Test text 2")
     }
 }
 
 Menu_Windows() {
-    choice := WaitForChoice("w (Window)", ["max", "Maximize"], ["r", "Restore"])
+    choice := WaitForChoice("w (Window)", 
+        ["max", "Maximize"], 
+        ["r", "Restore"])
+    
     switch choice {
         case "max": WinMaximize("A")
         case "r": WinRestore("A")
@@ -85,33 +85,26 @@ Menu_Windows() {
 }
 
 Menu_Mails() {
-    WaitForChoice("m (Mails)"
-        , ["p", "Pro", "pro@mail.com"]
-        , ["h", "Hobby", "hobby@mail.com"])
+    WaitForChoice("m (Mails)",
+        ["p", "Pro", "pro@mail.com"],
+        ["h", "Hobby", "hobby@mail.com"])
 }
-; === The Leader Hotkey  ===
-; Ctrl+Space activates capslock for one second.
-; Hotif Capslock T makes hotkey only active while capslock is active
-; Could be made better with a global var or something, but this is easier to have work
-; between different scripts. They can do the hotif without issue. I don't use capslock
-; anyways.
 
+; === The Leader Hotkey  ===
 TurnOffCapsLock() {
     SetCapsLockState "Off"
 }
 
-^Space:: {
+~!Space:: {
     SetCapsLockState "On"
-    SetTimer TurnOffCapsLock, -1500  ; Negative value means run only once
-    return
+    SetTimer(TurnOffCapsLock, -1500)  ; Negative value means run only once
 }
-
 
 #HotIf GetKeyState("CapsLock", "T")
 Space:: {
-        WaitForChoice("Macros"
-            , ["t", "Tests"]
-            , ["w", "Windows"]
-            , ["m", "Mails"])
+    WaitForChoice("Macros",
+        ["c", "Config"],
+        ["w", "Windows"],
+        ["m", "Mails"])
 }
-#Hotif
+#HotIf

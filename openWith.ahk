@@ -201,7 +201,7 @@ AddDirectoryContextMenu() {
     }
 }
 
-<^<!<+#F1::{
+runOpenWithConfigurator(){
     ; Associate all text file types
     successCount := 0
     for ext in TextExtensions {
