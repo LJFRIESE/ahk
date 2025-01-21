@@ -17,6 +17,12 @@ HotkeyGuide.RegisterHotkey("Hotkeys", "^Space", "Leader")
 HotkeyGuide.RegisterHotkey("Hotkeys", "{Leader}Space", "Menu")
 HotkeyGuide.RegisterHotkey("Hotkeys", "^+S", "SnippingTool")
 
+; Nav
+HotkeyGuide.RegisterHotkey("Navigation", "^+Up", "Cylce between applications")
+HotkeyGuide.RegisterHotkey("Navigation", "^+Down", "Cylce between applications")
+HotkeyGuide.RegisterHotkey("Navigation", "^+Left", "Select application windo")
+HotkeyGuide.RegisterHotkey("Navigation", "^+Right", "Select application window")
+
 ; Misc
 HotkeyGuide.RegisterHotkey("Misc", "<^<!<+#F1", "Edit Registry for Neovim defaults")
 
@@ -28,10 +34,10 @@ HotkeyGuide.RegisterHotkey("Numpad Mouse", "ScrollLock", "Enable/disable Numpad 
 HotkeyGuide.RegisterHotkey("Numpad Mouse", "NumLock", "Activate NumpadMouse")
 
 
-^+Left::#Left
-^+Right::#Right
-^+Up::#Up
-^+Down::#Down
+!+Left::#Left
+!+Right::#Right
+!+Up::#Up
+!+Down::#Down
 
 ^+S::Run "SnippingTool"
 
@@ -141,4 +147,4 @@ class HotkeyGuide {
 }
 
 
-^h::HotkeyGuide.Show()
+^!+h::HotkeyGuide.Show()
