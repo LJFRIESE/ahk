@@ -15,7 +15,7 @@ NvimPath := "nvim.exe"
 IconPath := NvimPath . ", 0"
 
 ; Assumes default WT profile is appropriate. Additional --profile needed to specify
-Cmd := WTPath . " new-tab  -d %L\.. wsl -e bash -c nvim %~n1"
+Cmd := WTPath . ' new-tab  -d %L\.. wsl -e bash -c "nvim $(pwd)"'
 
 
 ; List of text file extensions to associate
