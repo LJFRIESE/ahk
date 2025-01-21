@@ -9,8 +9,14 @@ AppRegPath := RegPath . "Applications\nvim.exe\"
 ; Application details for Neovim in Windows Terminal
 AppName := "Edit with Neovim"
 WTPath := "wt.exe"  ; Windows Terminal executable
-NvimPath := "nvim.exe" ;Assuming nvim is in PATH, otherwise use full path
+
+; This would be to use the Windows install of nvim. Probably don't combine this with WSL, but it does technically work...
+NvimPath := "nvim.exe"
 IconPath := NvimPath . ", 0"
+
+; Assumes default WT profile is appropriate. Additional --profile needed to specify
+Cmd := WTPath . " new-tab  -d %L\.. wsl -e bash -c nvim %~n1"
+
 
 ; List of text file extensions to associate
 TextExtensions := [
@@ -40,7 +46,7 @@ RegisterNeovimApp() {
         shellKey := AppRegPath . "shell\open\command"
         if !RegKeyExist(shellKey)
             RegCreateKey shellKey
-        command := WTPath . ' -d "%L\.." ' . NvimPath . ' "%V"'
+        command := Cmd
         RegWrite command, "REG_SZ", shellKey
 
         return true
@@ -75,7 +81,7 @@ AssociateFileType(extension) {
         if !RegKeyExist(cmdKey)
             RegCreateKey cmdKey
 
-        command := WTPath . ' -d "%L\.." ' . NvimPath . ' "%V"'
+        command := Cmd
         RegWrite command, "REG_SZ", cmdKey
 
         return true
@@ -107,7 +113,7 @@ RegisterForNoExtension() {
         shellKey := unknownKey . "\shell\open\command"
         if !RegKeyExist(shellKey)
             RegCreateKey shellKey
-        command := WTPath . ' -d "%L\.." ' . NvimPath . ' "%V"'
+        command := Cmd
         RegWrite command, "REG_SZ", shellKey
 
         ; Set default handler for no-extension files
@@ -156,7 +162,7 @@ AddGlobalContextMenu() {
         commandKey := globalKey . "\command"
         if !RegKeyExist(commandKey)
             RegCreateKey commandKey
-        command := WTPath . ' -d "%L\.." ' . NvimPath . ' "%V"'
+        command := Cmd
         RegWrite command, "REG_SZ", commandKey
 
         return true
@@ -191,7 +197,7 @@ AddDirectoryContextMenu() {
         commandKey := dirKey . "\command"
         if !RegKeyExist(commandKey)
             RegCreateKey commandKey
-        command := WTPath . ' -d "%L" ' . NvimPath
+        command := Cmd
         RegWrite command, "REG_SZ", commandKey
 
         return true
@@ -202,13 +208,10 @@ AddDirectoryContextMenu() {
 }
 
 runOpenWithConfigurator(){
-    ; Associate all text file types
-    successCount := 0
-    for ext in TextExtensions {
-        if AssociateFileType(ext)
-            successCount++
-    }
-    MsgBox "Successfully associated " . successCount . " of " . TextExtensions.Length . " file types with Neovim."
+
+	; Register the application as a defaultable .exe
+	if RegisterNeovimApp()
+		MsgBox "Context menu item added successfully!"
 
     ; Add the context menu item for text files
     ;if AddContextMenu()
@@ -220,10 +223,15 @@ runOpenWithConfigurator(){
     if AddGlobalContextMenu()
         MsgBox "Neovim global context menu added successfully."
 
-
     if AddDirectoryContextMenu()
        MsgBox "Neovim directory context menu added successfully."
-
-    ExitApp
+	   
+	; Associate all text file types
+    successCount := 0
+    for ext in TextExtensions {
+        if AssociateFileType(ext)
+            successCount++
+    }
+    MsgBox "Successfully associated " . successCount . " of " . TextExtensions.Length . " file types with Neovim."
 }
 
