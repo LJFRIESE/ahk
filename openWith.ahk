@@ -15,7 +15,12 @@ NvimPath := "nvim.exe"
 IconPath := NvimPath . ", 0"
 
 ; Assumes default WT profile is appropriate. Additional --profile needed to specify
-Cmd := WTPath . ' new-tab  -d %L/.. wsl bash -c "' . "dir='%L' && file=$(basename '%L') && cd ${dir} && nvim . -- ${file} " . '"'
+
+; For WSL I can't QUITE get it to launch nvim in the file. The dir is as close as I've gotten.
+; For nvim in windows it wasn't an issue.
+
+; Cmd := WTPath . ' new-tab  -d %L/.. wsl bash -c "' . "dir='%L' && file=$(basename '%L') && cd ${dir} && nvim . -- ${file} " . '"'
+Cmd := WTPath . ' new-tab  -d %L\.. wsl -e bash -c "nvim $(pwd)"'
 
 ; List of text file extensions to associate
 TextExtensions := [
