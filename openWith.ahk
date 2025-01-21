@@ -15,8 +15,7 @@ NvimPath := "nvim.exe"
 IconPath := NvimPath . ", 0"
 
 ; Assumes default WT profile is appropriate. Additional --profile needed to specify
-Cmd := WTPath . ' new-tab  -d %L\.. wsl -e bash -c "nvim $(pwd)"'
-
+Cmd := WTPath . ' new-tab  -d %L/.. wsl bash -c "' . "dir='%L' && file=$(basename '%L') && cd ${dir} && nvim . -- ${file} " . '"'
 
 ; List of text file extensions to associate
 TextExtensions := [
@@ -209,13 +208,9 @@ AddDirectoryContextMenu() {
 
 runOpenWithConfigurator(){
 
-	; Register the application as a defaultable .exe
-	if RegisterNeovimApp()
-		MsgBox "Context menu item added successfully!"
-
-    ; Add the context menu item for text files
-    ;if AddContextMenu()
-    ;    MsgBox "Context menu item added successfully!"
+    ; Register the application as a defaultable .exe
+    if RegisterNeovimApp()
+	MsgBox "Application registered successfully!"
 
     if RegisterForNoExtension()
         MsgBox "Neovim successfully registered for files with no extension."
