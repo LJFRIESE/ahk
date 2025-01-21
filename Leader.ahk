@@ -15,7 +15,6 @@ WaitForChoice(name, options*) {
     endKeys := ""
 
     for index, option in options {
-
             tooltipStr .=  option[1] . ": " . option[2]
             endKeys .= option[1]
             menuFunctionsDict[option[1]] := option[2]
@@ -109,6 +108,7 @@ Menu_Files() {
 }
 
 Menu_Main() {
+    TurnOffCapsLock()
     choice := WaitForChoice("Main menu",
         ["c", "Config"],
         ["a", "Applications"],
