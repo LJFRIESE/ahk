@@ -10,30 +10,106 @@ AppRegPath := RegPath . "Applications\nvim.exe\"
 AppName := "Edit with Neovim"
 WTPath := "wt.exe"  ; Windows Terminal executable
 
-; This would be to use the Windows install of nvim. Probably don't combine this with WSL, but it does technically work...
+; We're creating an 'app' of nvim that is not a Windows install of Neovim. it's a bash command
 NvimPath := "nvim.exe"
+; Didn't get this working yet.
 IconPath := NvimPath . ", 0"
 
-; Assumes default WT profile is appropriate. Additional --profile needed to specify
+; *** HOW THIS WORKS *** ;
+; Works on Windows 10/11
+;
+; Assumption: Default WT profile is appropriate. I've tested with Ubuntu, cmd, and bash
+;   - Add '--profile {name}'to specify
+; WT will open according to your settings. I use:
+;   - New instance behaviour = Attach to most recently used window. This seems to help
+;     with speed.
+;   - When Terminal Starts = Open a new tab with the default profile.
+;
+; What's happening:
+; 1. Call the Windows Terminal .exe
+; 2. Pass args of `new-tab` and `-d`.
+;    - The %L var, which is the full path context of the call
+;    - %L\.. gets the parent dir of the file selected
+; 3. Call the wsl exe
+;    - Assumes wsl is on the path
+;    - `-e` tells wsl to execute the following command
+; 4. Call bash
+;    - `-c` lets us pass a bash script as a string
+; 5. %L uses Windows style pathing that is not compatible with bash.
+;    - Process it with sed to isolate the filename. This cannot be gotten any other way
+;      as a 1-liner that can be used in the bash -c string.
+;    - The sed command removes everything prior to the final `\` and replaces it with
+;      `:e `. This gets passed to the nvim call
+; 6. Pass the `:e {filename}` string to nvim -s -
+;    -s tells nvim to read stdin in normal mode.
+;    - `-` tells nvim to take input from stdin
+;
+; Result:
+;    - Launch WSL in the file's directory
+;    - Call `nvim -s ":e {filename}"`
 
-; For WSL I can't QUITE get it to launch nvim in the file. The dir is as close as I've gotten.
-; For nvim in windows it wasn't an issue.
+; Directories are easy. Just lauch in the working dir
+DirCmd := WTPath . ' new-tab  -d %L wsl -e bash -c "nvim $(pwd)"'
 
-; Cmd := WTPath . ' new-tab  -d %L/.. wsl bash -c "' . "dir='%L' && file=$(basename '%L') && cd ${dir} && nvim . -- ${file} " . '"'
-Cmd := WTPath . ' new-tab  -d %L\.. wsl -e bash -c "nvim $(pwd)"'
+; Files are less so.
+; The whole variable just needs to be a single string exactly like this:
+; wt.exe new-tab -d %L\.. wsl -e bash -c "echo  '%L' | sed 's_\(.*\)\\_:e _g' | nvim -s -"
+FileCmd := WTPath . " new-tab -d %L\.. wsl -e bash -x -c " . '"' . "echo  '%L' | sed 's_\(.*\)\\_:e _g' | nvim -s -" . '"'
 
+; This is the list of extensions that will open with a double-click
 ; List of text file extensions to associate
+; Thanks Claude lol
 TextExtensions := [
-    ".txt", ".log", ".ini", ".cfg", ".conf", ".md", ".markdown",
-    ".json", ".yml", ".yaml", ".xml", ".css", ".scss", ".less",
-    ".js", ".ts", ".jsx", ".tsx", ".py", ".rb", ".php", ".pl",
-    ".sh", ".bash", ".zsh", ".fish", ".ps1", ".vim", ".lua",
-    ".gitignore", ".env", ".md", ".sql", ".rmd", ".qmd", ".plsql",
-    ".ahk",".sh",".bat"
+    ; Text and Documentation
+    ".txt", ".log", ".ini", ".cfg", ".conf", ".md", ".markdown", ".rst", ".adoc",
+    ".tex", ".ltx", ".org", ".wiki", ".dokuwiki", ".mediawiki", ".man",
+
+    ; Web and Styling
+    ".json", ".yml", ".yaml", ".xml", ".css", ".scss", ".less", ".sass", ".styl",
+    ".htm", ".html", ".xhtml", ".svg", ".wasm", ".vue", ".svelte",
+
+    ; JavaScript/TypeScript
+    ".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs", ".d.ts", ".coffee", ".flow",
+
+    ; Other Programming Languages
+    ".py", ".rb", ".php", ".pl", ".java", ".kt", ".kts", ".scala", ".go", ".rs",
+    ".cpp", ".c", ".h", ".hpp", ".cs", ".fs", ".fsx", ".elm", ".erl", ".ex",
+    ".exs", ".dart", ".swift", ".m", ".mm", ".r", ".jl", ".clj", ".cljs", ".ahk"
+
+    ; Shell and Scripts
+    ".sh", ".bash", ".zsh", ".fish", ".ps1", ".bat", ".cmd", ".vbs", ".lua",
+    ".tcl", ".awk", ".sed",
+
+    ; Configuration and Data
+    ".gitignore", ".env", ".sql", ".rmd", ".qmd", ".plsql", ".toml", ".properties",
+    ".plist", ".inf", ".reg", ".ahk", ".csv", ".tsv",
+
+    ; Build and Project Files
+    ".cmake", ".make", ".mk", ".rake", ".gradle", ".ant", ".maven",
+    ".project", ".classpath", ".csproj", ".vbproj", ".vcxproj", ".sln",
+
+    ; Container and Deploy
+    ".dockerfile", ".dockerignore", ".nomad", ".tf", ".tfvars", ".hcl",
+
+    ; General Purpose
+    ".bak", ".tmp", ".temp", ".cache", ".lock"
 ]
 
+; Each of the following functions edits a different part of the registry.
+; It  could probably be consolidated a lot, but I don't know much about how the regirsty
+; works really. Just what I've read and fiddled with personally.
 
-; Register Neovim as an application
+; Helper function to check if registry key exists
+RegKeyExist(key) {
+    try {
+        RegRead(key)
+        return true
+    } catch Error {
+        return false
+    }
+}
+
+; Register our fake Neovim as an application
 RegisterNeovimApp() {
     try {
         ; Create application registration
@@ -50,7 +126,7 @@ RegisterNeovimApp() {
         shellKey := AppRegPath . "shell\open\command"
         if !RegKeyExist(shellKey)
             RegCreateKey shellKey
-        command := Cmd
+        command := FileCmd
         RegWrite command, "REG_SZ", shellKey
 
         return true
@@ -85,7 +161,7 @@ AssociateFileType(extension) {
         if !RegKeyExist(cmdKey)
             RegCreateKey cmdKey
 
-        command := Cmd
+        command := FileCmd
         RegWrite command, "REG_SZ", cmdKey
 
         return true
@@ -95,6 +171,7 @@ AssociateFileType(extension) {
     }
 }
 
+; Also open files with no extension.
 RegisterForNoExtension() {
     try {
         ; Define Unknown registry path
@@ -117,7 +194,7 @@ RegisterForNoExtension() {
         shellKey := unknownKey . "\shell\open\command"
         if !RegKeyExist(shellKey)
             RegCreateKey shellKey
-        command := Cmd
+        command := FileCmd
         RegWrite command, "REG_SZ", shellKey
 
         ; Set default handler for no-extension files
@@ -130,13 +207,37 @@ RegisterForNoExtension() {
     }
 }
 
-
-; Helper function to check if registry key exists
-RegKeyExist(key) {
+AddDirectoryContextMenu() {
     try {
-        RegRead(key)
+        ; Define the registry path for directories context menu
+        dirKey := RegPath . "Directory\shell\" . AppName
+
+        ; Create the registry key if it doesn't exist
+        if !RegKeyExist(dirKey)
+            RegCreateKey dirKey
+
+        ; Set display name
+        RegWrite "Open directory in NeoVim", "REG_SZ", dirKey, "MUIVerb"
+
+        ; Set icon for the context menu item
+        iconKey := dirKey . "\DefaultIcon"
+        if !RegKeyExist(iconKey)
+            RegCreateKey iconKey
+        RegWrite IconPath, "REG_SZ", iconKey
+
+        ; Set position to appear prominently
+        RegWrite "Top", "REG_SZ", dirKey, "Position"
+
+        ; Set the command for the context menu
+        commandKey := dirKey . "\command"
+        if !RegKeyExist(commandKey)
+            RegCreateKey commandKey
+        command := DirCmd
+        RegWrite command, "REG_SZ", commandKey
+
         return true
-    } catch Error {
+    } catch Error as err {
+        MsgBox "Error adding directory context menu: " . err.Message
         return false
     }
 }
@@ -166,7 +267,7 @@ AddGlobalContextMenu() {
         commandKey := globalKey . "\command"
         if !RegKeyExist(commandKey)
             RegCreateKey commandKey
-        command := Cmd
+        command := FileCmd
         RegWrite command, "REG_SZ", commandKey
 
         return true
@@ -176,57 +277,20 @@ AddGlobalContextMenu() {
     }
 }
 
-AddDirectoryContextMenu() {
-    try {
-        ; Define the registry path for directories context menu
-        dirKey := RegPath . "Directory\shell\" . AppName
-
-        ; Create the registry key if it doesn't exist
-        if !RegKeyExist(dirKey)
-            RegCreateKey dirKey
-
-        ; Set display name
-        RegWrite AppName, "REG_SZ", dirKey, "MUIVerb"
-
-        ; Set icon for the context menu item
-        iconKey := dirKey . "\DefaultIcon"
-        if !RegKeyExist(iconKey)
-            RegCreateKey iconKey
-        RegWrite IconPath, "REG_SZ", iconKey
-
-        ; Set position to appear prominently
-        RegWrite "Top", "REG_SZ", dirKey, "Position"
-
-        ; Set the command for the context menu
-        commandKey := dirKey . "\command"
-        if !RegKeyExist(commandKey)
-            RegCreateKey commandKey
-        command := Cmd
-        RegWrite command, "REG_SZ", commandKey
-
-        return true
-    } catch Error as err {
-        MsgBox "Error adding directory context menu: " . err.Message
-        return false
-    }
-}
-
 runOpenWithConfigurator(){
-
-    ; Register the application as a defaultable .exe
     if RegisterNeovimApp()
 	MsgBox "Application registered successfully!"
 
     if RegisterForNoExtension()
         MsgBox "Neovim successfully registered for files with no extension."
 
+    if AddDirectoryContextMenu()
+       MsgBox "Neovim directory context menu added successfully."
+
     if AddGlobalContextMenu()
         MsgBox "Neovim global context menu added successfully."
 
-    if AddDirectoryContextMenu()
-       MsgBox "Neovim directory context menu added successfully."
-	   
-	; Associate all text file types
+    ; Associate all text file types
     successCount := 0
     for ext in TextExtensions {
         if AssociateFileType(ext)
