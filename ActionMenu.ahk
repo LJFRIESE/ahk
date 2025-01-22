@@ -119,12 +119,3 @@ Menu_Main() {
 TurnOffCapsLock() {
     SetCapsLockState "Off"
 }
-
-~^!+Space:: {
-    SetCapsLockState "On"
-    SetTimer(TurnOffCapsLock, -1000)  ; Negative value means run only once
-}
-
-#HotIf GetKeyState("CapsLock", "T")
-Space:: Menu_Main()
-#HotIf

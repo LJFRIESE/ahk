@@ -3,44 +3,6 @@
 #SingleInstance
 #Warn
 
-; Macro record
-HotkeyGuide.RegisterHotkey("Macros", "F1{short hold}", "Record")
-HotkeyGuide.RegisterHotkey("Macros", "F1{long hold}", "Inspect recording")
-
-; AHK Control
-HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+s", "RunAllScripts")
-HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+l", "ShowActiveScripts")
-HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+r", "ReloadAllScripts")
-
-; Hotkeys
-HotkeyGuide.RegisterHotkey("Hotkeys", "^Space", "Leader")
-HotkeyGuide.RegisterHotkey("Hotkeys", "{Leader}Space", "Menu")
-HotkeyGuide.RegisterHotkey("Hotkeys", "^+S", "SnippingTool")
-
-; Nav
-HotkeyGuide.RegisterHotkey("Navigation", "^+Up", "Cylce between applications")
-HotkeyGuide.RegisterHotkey("Navigation", "^+Down", "Cylce between applications")
-HotkeyGuide.RegisterHotkey("Navigation", "^+Left", "Select application windo")
-HotkeyGuide.RegisterHotkey("Navigation", "^+Right", "Select application window")
-
-; Misc
-HotkeyGuide.RegisterHotkey("Misc", "<^<!<+#F1", "Edit Registry for Neovim defaults")
-
-; Example default usage
-; HotkeyGuide.RegisterHotkey("Help", "^h", "Show Hotkey Guide")
-
-; Numpad Mouse
-HotkeyGuide.RegisterHotkey("Numpad Mouse", "ScrollLock", "Enable/disable Numpad Mouse")
-HotkeyGuide.RegisterHotkey("Numpad Mouse", "NumLock", "Activate NumpadMouse")
-
-
-!+Left::#Left
-!+Right::#Right
-!+Up::#Up
-!+Down::#Down
-
-^+S::Run "SnippingTool"
-
 ; Utility function
 Join(arr, delimiter := ",") {
     result := ""
@@ -70,9 +32,9 @@ ScriptStatusGui(message, duration := 3000)
 
 }
 
-    global windowWidth := A_ScreenWidth*.7
-    global windowHight := A_ScreenHeight*.7
-
+; Help popup
+global windowWidth := A_ScreenWidth*.7
+global windowHight := A_ScreenHeight*.7
 class HotkeyGuide {
     static overlayGui := false
     static globalRegistry := Map()
@@ -90,7 +52,6 @@ class HotkeyGuide {
         }
         this.CreateOverlay()
         this.overlayGui.Show("AutoSize")
-
     }
 
     static Hide() {
@@ -99,38 +60,45 @@ class HotkeyGuide {
     }
 
     static CreateOverlay() {
-        this.overlayGui := Gui("+AlwaysOnTop -Caption +E0x20 +Owner")
-        this.overlayGui.BackColor := "222222"
-        this.overlayGui.MarginY := 10
-        this.overlayGui.OnEvent('Escape', (*) => this.overlayGui.Hide())
-        WinSetTransparent(200, this.overlayGui)
+    this.overlayGui := Gui("+AlwaysOnTop -Caption +E0x20 +Owner")
+    this.overlayGui.BackColor := "222222"
+    this.overlayGui.MarginY := 10
+    this.overlayGui.OnEvent('Escape', (*) => this.overlayGui.Hide())
+    WinSetTransparent(250, this.overlayGui)
 
-        itemsPerRow := 5
+    ; Calculate column widths and positions
+    columnWidth := windowWidth / 4
 
-	groups := this.globalRegistry.Count
+    leftColumnX := "XM"
+    rightColumnX := "XS" . columnWidth . " YS"
 
-        for scriptName, hotkeys in this.globalRegistry {
-	    this.overlayGui.SetFont("s10 w600")
-		; Title
-	    this.overlayGui.Add("Text", "Section XM YP+40 cFFFFFF", scriptName)
-		item := 0
+    ; Track which column we're in (0 = left, 1 = right)
+    currentColumn := 0
 
-            for key, desc in hotkeys {
-    		this.overlayGui.SetFont("s10 w400")
-		; Key
-		this.overlayGui.Add("Text", "XM cFFFFFF", this.FormatHotkeyString(key))
-        	; Description
-		this.overlayGui.Add("Text", "YP cCCCCCC", desc)
-                item += 1
-	   }
+    for scriptName, hotkeys in this.globalRegistry {
+        ; Determine X position based on current column
+        xPos := currentColumn = 0 ? leftColumnX : rightColumnX
+
+        ; Add section title
+        this.overlayGui.SetFont("s12 w600")
+        this.overlayGui.Add("Text", "Section " . xPos . " cFFFFFF", scriptName)
+
+        ; Add hotkeys and descriptions
+        for key, desc in hotkeys {
+            this.overlayGui.SetFont("s10 w600")
+            ; Key
+            this.overlayGui.Add("Text", "XS cCCCCCC", this.FormatHotkeyString(key))
+            ; Description
+            this.overlayGui.SetFont("s10 w400")
+            this.overlayGui.Add("Text", "YP cCCCCCC", desc)
         }
 
-        this.overlayGui.Add("Text", "YP+50 Center cFFFFFF", "Press Escape to Close")
+        ; Toggle column for next section
+        currentColumn := currentColumn = 0 ? 1 : 0
     }
 
-   ; static AddSection(title, items) {
-    ;
-    ;}
+    this.overlayGui.Add("Text", "YP+50 Center cFFFFFF", "Press Escape to Close")
+}
 
     static FormatHotkeyString(hotkeyStr) {
 	formatted := StrReplace(hotkeyStr, "<^<!<+#", "Hyper-")
@@ -146,5 +114,81 @@ class HotkeyGuide {
     }
 }
 
+; AHK Control
+RunAllScripts() {
+    scriptCount := 0
+    startedScripts := []
 
-^!+h::HotkeyGuide.Show()
+    Loop Files A_WorkingDir "\*.ahk" {
+        if (A_LoopFilePath = A_ScriptFullPath)
+            continue
+        if (InStr(A_LoopFilePath, "HotkeyGuide"))
+            continue
+
+        try {
+            Run A_LoopFilePath
+            scriptCount++
+            startedScripts.Push(A_LoopFileName)
+        } catch Error as e {
+            ScriptStatusGui("Failed to run: " . A_LoopFilePath . "`nError: " . e.Message)
+        }
+
+        Sleep(100)
+    }
+
+    ; Show status popup
+    if scriptCount > 0 {
+        message := "Started " scriptCount " scripts:`n"
+        message .= Join(startedScripts, "`n")
+        ScriptStatusGui(message, 3000)
+    } else {
+        ScriptStatusGui("No new scripts started")
+    }
+
+}
+
+; Show active scripts
+ShowActiveScripts() {
+    DetectHiddenWindows(true)
+    winList := WinGetList("ahk_class AutoHotkey")
+    activeScripts := []
+
+    for hwnd in winList {
+        windowTitle := WinGetTitle("ahk_id " hwnd)
+        if InStr(windowTitle, " - AutoHotkey") {
+            scriptPath := SubStr(windowTitle, 1, InStr(windowTitle, " - AutoHotkey") - 1)
+            SplitPath(scriptPath, &scriptName)
+            activeScripts.Push(scriptName)
+        }
+    }
+
+    if activeScripts.Length > 0 {
+        message := "Active Scripts:`n"
+        message .= Join(activeScripts, "`n")
+    } else {
+        message := "No active scripts found"
+    }
+
+    ScriptStatusGui(message)
+}
+
+KillActiveScripts() {
+    DetectHiddenWindows(true)
+    AHKList := WinGetList("ahk_exe AutoHotkey.exe")
+    killedScripts := []
+    for ID in AHKList {
+        if (A_ScriptHwnd != ID)
+            WinClose("ahk_id " ID)
+    }
+
+    if killedScripts.Length > 0 {
+        message := "Terminated Scripts:`n"
+        message .= Join(killedScripts, "`n")
+    } else {
+        message := "No other scripts found to terminate"
+    }
+
+    ScriptStatusGui(message)
+    ExitApp()
+}
+

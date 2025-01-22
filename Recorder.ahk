@@ -321,14 +321,14 @@ LogWindow() {
   static oldtitle
   id := WinExist("A")
   title := WinGetTitle()
-  class := WinGetClass()
-  if (title = "" && class = "")
+  _class := WinGetClass()
+  if (title = "" && _class = "")
     return
   if (id = oldid && title = oldtitle)
     return
   oldid := id, oldtitle := title
   title := SubStr(title, 1, 50)
-  title .= class ? " ahk_class " class : ""
+  title .= _class ? " ahk_class " _class : ""
   title := RegExReplace(Trim(title), "[``%;]", "``$0")
   CommentString := ""
   if (MouseMode != "window")

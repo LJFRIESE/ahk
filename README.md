@@ -1,6 +1,10 @@
 # README
 
-`^h` to bring up help menu
+`^!+h` to bring up help menu
+
+# Power Toys
+
+It's useful
 
 # Kinesis Advantage 2 Notes
 

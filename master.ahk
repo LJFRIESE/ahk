@@ -6,103 +6,66 @@
 
 #Include Functions.ahk
 
+; Block Win keys
 #^!Shift:: Send "{Blind}{vk07}"
 #^+Alt:: Send "{Blind}{vk07}"
 #!+Ctrl:: Send "{Blind}{vk07}"
 ^!+LWin:: Send "{Blind}{vk07}"
 ^!+RWin:: Send "{Blind}{vk07}"
 
-RunAllScripts() {
-    scriptCount := 0
-    startedScripts := []
+; AHK Control
+#Include Functions.ahk
+; HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+s", "RunAllScripts")
+HotkeyGuide.RegisterHotkey("AHK Control", "{leader}l", "ShowActiveScripts")
+HotkeyGuide.RegisterHotkey("AHK Control", "<^<!<+r", "ReloadAllScripts")
+; <^<!<+s:: RunAllScripts()     ; Meh + S to run all scripts
 
-    Loop Files A_WorkingDir "\*.ahk" {
-        if (A_LoopFilePath = A_ScriptFullPath)
-            continue
-        if (InStr(A_LoopFilePath, "HotkeyGuide"))
-            continue
-
-        try {
-            Run A_LoopFilePath
-            scriptCount++
-            startedScripts.Push(A_LoopFileName)
-        } catch Error as e {
-            ScriptStatusGui("Failed to run: " . A_LoopFilePath . "`nError: " . e.Message)
-        }
-
-        Sleep(100)
-    }
-
-    ; Show status popup
-    if scriptCount > 0 {
-        message := "Started " scriptCount " scripts:`n"
-        message .= Join(startedScripts, "`n")
-        ScriptStatusGui(message, 3000)
-    } else {
-        ScriptStatusGui("No new scripts started")
-    }
-
-}
-
-; Show active scripts
-ShowActiveScripts() {
-    DetectHiddenWindows(true)
-    winList := WinGetList("ahk_class AutoHotkey")
-    activeScripts := []
-
-    for hwnd in winList {
-        windowTitle := WinGetTitle("ahk_id " hwnd)
-        if InStr(windowTitle, " - AutoHotkey") {
-            scriptPath := SubStr(windowTitle, 1, InStr(windowTitle, " - AutoHotkey") - 1)
-            SplitPath(scriptPath, &scriptName)
-            activeScripts.Push(scriptName)
-        }
-    }
-
-    if activeScripts.Length > 0 {
-        message := "Active Scripts:`n"
-        message .= Join(activeScripts, "`n")
-    } else {
-        message := "No active scripts found"
-    }
-
-    ScriptStatusGui(message)
-}
-
-KillActiveScripts() {
-    DetectHiddenWindows(true)
-    winList := WinGetList("ahk_class AutoHotkey")
-    killedScripts := []
-    scripts := WinGetList("ahk_class AutoHotkey")
-    ; Loop through each script window
-    for hwnd in scripts {
-        ; Get the process ID of the script
-        pid := WinGetPID(hwnd)
-
-        ; Get the process name to verify it's an AHK script
-        procName := WinGetProcessName(hwnd)
-
-        ; Only close if it's actually an AutoHotkey process
-        if (InStr(procName, "AutoHotkey")) {
-            ; Skip the current script
-            if (pid != ProcessExist()) {
-                killedScripts.Push(pid)
-                ProcessClose(pid)
-            }
-        }
-    }
-
-    if killedScripts.Length > 0 {
-        message := "Terminated Scripts:`n"
-        message .= Join(killedScripts, "`n")
-    } else {
-        message := "No other scripts found to terminate"
-    }
-
-    ScriptStatusGui(message)
-}
 
 ; Hotkeys
-<^<!<+s:: RunAllScripts()     ; Meh + S to run all scripts
-<^<!<+l:: ShowActiveScripts() ; Meh + L to list active scripts
-<^<!<+k:: KillActiveScripts()     ; Meh + K to kill all scripts
+#Include ActionMenu.ahk
+HotkeyGuide.RegisterHotkey("Hotkeys", "Esc Space", "Leader")
+HotkeyGuide.RegisterHotkey("Hotkeys", "{leader}Space", "Open Action Menu")
+HotkeyGuide.RegisterHotkey("Hotkeys", "<!<+", "Win key rebind")
+HotkeyGuide.RegisterHotkey("Hotkeys", "{leader}+S", "SnippingTool")
+    ; Leader
+~Esc & Space::{
+    SetScrollLockState 1
+    Sleep 1000
+    SetScrollLockState 0
+}
+#HotIf GetKeyState("ScrollLock", "T")
+    Space:: Menu_Main()
+    h::HotkeyGuide.Show() ; Show help popup
+    l:: ShowActiveScripts()
+    k:: KillActiveScripts()
+    w:: KeyWait("Esc", "d") ; Keep leader {scrolllock} active
+#HotIf
+
+    ; Misc
+; <!<+::#
+^+S::Run "SnippingTool"
+
+; Nav
+#Include windowCycler.ahk
+HotkeyGuide.RegisterHotkey("Navigation", "^+Up", "Cylce between applications")
+HotkeyGuide.RegisterHotkey("Navigation", "^+Down", "Cylce between applications")
+HotkeyGuide.RegisterHotkey("Navigation", "^+Left", "Select application windo")
+HotkeyGuide.RegisterHotkey("Navigation", "^+Right", "Select application window")
+^+Up::CycleClasses("prev")
+^+Down::CycleClasses("next")
+^+Left::CycleWindows("prev")
+^+Right::CycleWindows("next")
+
+; Numpad Mouse
+#Include NumpadMouse.ahk
+HotkeyGuide.RegisterHotkey("Numpad Mouse", "ScrollLock", "Enable/disable Numpad Mouse")
+HotkeyGuide.RegisterHotkey("Numpad Mouse", "NumLock", "Activate NumpadMouse")
+
+; Misc
+#Include openWith.ahk
+HotkeyGuide.RegisterHotkey("Misc", "<^<!<+#F1", "Edit Registry for Neovim defaults")
+
+; Macro record
+HotkeyGuide.RegisterHotkey("Macros", "F1{short hold}", "Record")
+HotkeyGuide.RegisterHotkey("Macros", "F1{long hold}", "Inspect recording")
+#Include Recorder.ahk
