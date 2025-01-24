@@ -25,9 +25,10 @@ ShowInfo(windows, currentClass) {
             text .= "      " _class " [" hwndList.Length "]`n"
         }
     }
-
-    ToolTip text
-    SetTimer () => ToolTip(), -1500
+    cyclerGui := ScriptStatusGui(text,,)
+    cyclerGui.Show()
+    ; ToolTip text
+    ; SetTimer () => ToolTip(), -1500
 }
 
 ; Get windows grouped by class

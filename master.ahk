@@ -10,8 +10,8 @@ Persistent
 
 
 ; AHK Control
-#Include Functions.ahk
-HotkeyGuide.RegisterHotkey("AHK Control", "{leader}l", "ShowActiveScripts")
+HotkeyGuide.RegisterHotkey("AHK Control", "{leader}l", "ListActiveScripts")
+HotkeyGuide.RegisterHotkey("AHK Control", "{leader}r", "ReloadAllScripts")
 HotkeyGuide.RegisterHotkey("AHK Control", "{leader}k", "KillActiveScripts")
 
 ; Nav
@@ -71,17 +71,7 @@ F2::ScrollLock
 #HotIf GetKeyState("ScrollLock", "T")
     w:: KeyWait("Esc", "d") ; Keep leader {scrolllock} active
     Space:: Menu_Main()
-    h::HotkeyGuide.Show() ; Show help pndopup
-
-    ; AHK Control
-    ; r:: ReloadAllScripts()
-    ; s:: RunAllScripts()
-    l:: ShowActiveScripts()
-    k:: KillActiveScripts()
-
-    ; Applications
-    e:: Run "explorer"
-    c:: Run "chrome"
+    +h::HotkeyGuide.Show() ; Show help pndopup
 
     ; Window Control
     *Left::Send "{blind}#{Left}"

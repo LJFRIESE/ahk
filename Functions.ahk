@@ -14,21 +14,27 @@ Join(arr, delimiter := ",") {
 }
 
 ; Create GUI for status popup
-ScriptStatusGui(message, duration := 3000)
+ScriptStatusGui(message, location := "corner", duration := 3000)
 {
     statusGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
     statusGui.SetFont("s10", "Segoe UI")
     statusGui.Add("Text", , message)
     statusGui.BackColor := "F0F0F0"
 
+    if (location = "corner") {
     ; Position at bottom right of primary monitor
     MonitorGetWorkArea(1, &left, &top, &right, &bottom)
-    statusGui.Show("NoActivate x" . (right - 300) . " y" . (bottom - 100) . " w280")
-
-    statusGui.Show()
+        statusGui.Show("NoActivate x" . (right - 300) . " y" . (bottom - 100) . " w280")
+    }
+    ; Add cursor maybe for else
+    if (location = "center"){
+        statusGui.Show("NoActivate")
+    } else {
+        statusGui.Show("NoActivate")
+    }
 
     SetTimer(() => statusGui.Destroy(), -duration)
-
+    return statusGui
 }
 
 ; Help popup
@@ -139,7 +145,7 @@ RunAllScripts() {
     if scriptCount > 0 {
         message := "Started " scriptCount " scripts:`n"
         message .= Join(startedScripts, "`n")
-        ScriptStatusGui(message, 3000)
+        ScriptStatusGui(message)
     } else {
         ScriptStatusGui("No new scripts started")
     }
@@ -147,7 +153,7 @@ RunAllScripts() {
 }
 
 ; Show active scripts
-ShowActiveScripts() {
+ListActiveScripts() {
     DetectHiddenWindows(true)
     winList := WinGetList("ahk_class AutoHotkey")
     activeScripts := []
@@ -191,3 +197,48 @@ KillActiveScripts() {
     ExitApp()
 }
 
+
+
+; Function to reload all running AHK scripts
+ReloadAllScripts() {
+    DetectHiddenWindows(true)
+    winList := WinGetList("ahk_class AutoHotkey")
+
+    if !winList.Length {
+        ScriptStatusGui("No AutoHotkey scripts found running")
+        return
+    }
+
+    reloadedScripts := []
+    failedScripts := []
+    currentScript := A_ScriptFullPath
+
+    for hwnd in winList {
+        try {
+            windowTitle := WinGetTitle("ahk_id " hwnd)
+
+            if InStr(windowTitle, " - AutoHotkey") {
+                scriptPath := SubStr(windowTitle, 1, InStr(windowTitle, " - AutoHotkey") - 1)
+            } else {
+                scriptPath := windowTitle
+            }
+
+            SplitPath(scriptPath, &scriptName)
+
+            PostMessage(0x111, 65400, 0, , "ahk_id " hwnd)
+            reloadedScripts.Push(scriptName)
+            Sleep(100)
+        } catch Error as e {
+            failedScripts.Push(scriptName)
+        }
+    }
+
+    ; Show status popup
+    message := "Reloaded Scripts:`n"
+    message .= Join(reloadedScripts, "`n")
+    if failedScripts.Length > 0 {
+        message .= "`n`nFailed Scripts:`n"
+        message .= Join(failedScripts, "`n")
+    }
+    ScriptStatusGui(message)
+}

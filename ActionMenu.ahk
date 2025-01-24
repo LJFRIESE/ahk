@@ -1,7 +1,3 @@
-; Global variables
-global doubleTapTimeout := 250  ; ms
-global lastSpacePress := 0
-
 ; === The Helper function ===
 WaitForChoice(name, options*) {
     ; === Building the Tooltip string, EndKeys parameter, and choices dictionary (for Menu functions) ===
@@ -20,11 +16,12 @@ WaitForChoice(name, options*) {
     }
 
     ; === Tooltip + Wait for input ===
-    ToolTip(tooltipStr)
+    ttGui := ScriptStatusGui(tooltipStr,"center",10000)
+    ;
     ih := InputHook("L1", "{Pause}{Esc}{Enter}", endKeys)
     ih.Start()
     ih.Wait()
-    ToolTip()
+    ttGui.Destroy()
 
     if ih.EndReason = "EndKey" && ih.EndKey = "Escape"
         return
@@ -48,22 +45,22 @@ WaitForChoice(name, options*) {
 ; === Menu functions ===
 ; 1st option is the option key
 ; 2nd option is the option description
-Menu_Config() {
-    choice := WaitForChoice("[C]onfig",
-        ; ["1", "Run runOpenWithConfigurator"],
-        ["1", "A test"]
-        ["2", "test"])
-
-    switch choice, 0 {
-        case "1":
-            ; #Include openWith.ahk
-            ; runOpenWithConfigurator()
-        case "2":
-            SendInput("Test text 2")
-        default:
-            Menu_Main()
-    }
-}
+; Menu_Config() {
+;     choice := WaitForChoice("[C]onfig",
+;         ; ["1", "Run runOpenWithConfigurator"],
+;         ["1", "A test"]
+;         ["2", "test"])
+;
+;     switch choice, 0 {
+;         case "1":
+;             ; #Include openWith.ahk
+;             ; runOpenWithConfigurator()
+;         case "2":
+;             SendInput("Test text 2")
+;         default:
+;             Menu_Main()
+;     }
+; }
 
 Menu_Applications() {
     choice := WaitForChoice("[A]pplications",
@@ -75,7 +72,7 @@ Menu_Applications() {
             if (!ProcessExist("outlook.exe"))
                 {
                 Run("outlook.exe")
-                Sleep 15000  ;can change this is want
+                ; Sleep 15000  ;can change this is want
                 }
             outlookApp := ComObjActive("Outlook.Application")
 
@@ -104,10 +101,42 @@ Menu_Files() {
         }
 }
 
+runOrActivate(name){
+    if WinExist("ahk_exe " . name) {
+        WinActivate("ahk_exe " . name)
+    } else {
+        Run(name)
+    }
+
+}
+
 Menu_Main() {
     choice := WaitForChoice("Main menu",
-        ["c", "Config"],
         ["a", "Applications"],
-        ["f", "Files"])
+        ["f", "Files"],
+        [":----- AHK Control -----"," "],
+        ["r", "Reload"],
+        ["l", "List"],
+        ["k", "Kill"],
+        [":-----  Misc -----"," "],
+        ["e", "File Explorer"],
+        ["c", "Chrome"]
+       )
+
+    switch choice, 0 {
+        case "e":
+            runOrActivate("explorer.exe")
+        case "c":
+            runOrActivate("chrome.exe")
+        case "r":
+            ReloadAllScripts()
+        case "k":
+             KillActiveScripts()
+        case "l":
+            ListActiveScripts()
+        ; s:: RunAllScripts()
+        default:
+            return
+        }
 }
 
