@@ -85,8 +85,8 @@ F2::ScrollLock
 
     ; Window Control
     *Left::Send "{blind}#{Left}"
-    *Up::Send "blind#{Up}"
-    *Down::Send "blind#{Down}"
-    *Right::Send "blind#{Right}"
+    *Up::Send "{blind}#{Up}"
+    *Down::Send "{blind}#{Down}"
+    *Right::Send "{blind}#{Right}"
 #HotIf
 
