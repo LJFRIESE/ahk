@@ -1,7 +1,3 @@
-#Requires AutoHotkey v2.0
-#NoTrayIcon
-#SingleInstance
-
 ; Registry paths
 RegPath := "HKEY_CURRENT_USER\SOFTWARE\Classes\"
 AppRegPath := RegPath . "Applications\nvim.exe\"

@@ -1,7 +1,3 @@
-#Requires AutoHotkey v2.0
-#SingleInstance
-#Warn
-
 ; Global variables
 global doubleTapTimeout := 250  ; ms
 global lastSpacePress := 0
@@ -54,13 +50,14 @@ WaitForChoice(name, options*) {
 ; 2nd option is the option description
 Menu_Config() {
     choice := WaitForChoice("[C]onfig",
-        ["1", "Run runOpenWithConfigurator"],
+        ; ["1", "Run runOpenWithConfigurator"],
+        ["1", "A test"])
         ["2", "test"])
 
     switch choice, 0 {
         case "1":
-            #Include openWith.ahk
-            runOpenWithConfigurator()
+            ; #Include openWith.ahk
+            ; runOpenWithConfigurator()
         case "2":
             SendInput("Test text 2")
         default:
@@ -108,14 +105,9 @@ Menu_Files() {
 }
 
 Menu_Main() {
-    TurnOffCapsLock()
     choice := WaitForChoice("Main menu",
         ["c", "Config"],
         ["a", "Applications"],
         ["f", "Files"])
 }
 
-; === The Leader Hotkey  ===
-TurnOffCapsLock() {
-    SetCapsLockState "Off"
-}

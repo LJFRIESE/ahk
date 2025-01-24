@@ -1,9 +1,3 @@
-#Requires AutoHotkey v2.0
-#NoTrayIcon
-#SingleInstance
-
-#Include Functions.ahk
-
 ; Function to reload all running AHK scripts
 ReloadAllScripts() {
     DetectHiddenWindows(true)
@@ -50,5 +44,3 @@ ReloadAllScripts() {
     }
     ScriptStatusGui(message, 3500)
 }
-
-<^<!<+r:: ReloadAllScripts()

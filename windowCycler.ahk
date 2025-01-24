@@ -1,6 +1,3 @@
-#Requires AutoHotkey v2.0
-#SingleInstance
-
 ; Global variables
 global currentWindowIndex := Map()
 
@@ -10,7 +7,7 @@ ShowInfo(windows, currentClass) {
 
     ; Build tooltip text
     for _class in windows {
-        hwndList := windows[class]
+        hwndList := windows[_class]
         if (_class = currentClass) {
             text .= ">> " _class " [" hwndList.Length "]`n"
             ; Show titles for current class
@@ -64,7 +61,7 @@ CycleClasses(direction) {
     ; Get sorted list of classes
     classes := []
     for _class in windows
-        classes.Push(class)
+        classes.Push(_class)
 
     ; Find current class index
     currentClass := WinGetProcessName("A")
