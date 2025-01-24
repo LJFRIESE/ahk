@@ -51,7 +51,7 @@ WaitForChoice(name, options*) {
 Menu_Config() {
     choice := WaitForChoice("[C]onfig",
         ; ["1", "Run runOpenWithConfigurator"],
-        ["1", "A test"])
+        ["1", "A test"]
         ["2", "test"])
 
     switch choice, 0 {
