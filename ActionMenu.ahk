@@ -16,12 +16,12 @@ WaitForChoice(name, options*) {
     }
 
     ; === Tooltip + Wait for input ===
-    ttGui := ScriptStatusGui(tooltipStr,"center",10000)
+    StatusGui.Show(tooltipStr,"center",10000)
     ;
     ih := InputHook("L1", "{Pause}{Esc}{Enter}", endKeys)
     ih.Start()
     ih.Wait()
-    ttGui.Destroy()
+    StatusGui.Hide()
 
     if ih.EndReason = "EndKey" && ih.EndKey = "Escape"
         return

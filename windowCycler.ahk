@@ -1,3 +1,7 @@
+#Requires AutoHotkey v2.0
+#SingleInstance
+#Include Functions.ahk
+
 ; Global variables
 global currentWindowIndex := Map()
 
@@ -16,7 +20,7 @@ ShowInfo(windows, currentClass) {
                 if StrLen(title) > 60
                     title := SubStr(title, 1, 57) . "..."
 
-                if (hwnd = WinGetID("A"))
+                if (title = WinGetTitle("A"))
                     text .= "      → " title "`n"
                 else
                     text .= "          " title "`n"
@@ -25,10 +29,11 @@ ShowInfo(windows, currentClass) {
             text .= "      " _class " [" hwndList.Length "]`n"
         }
     }
-    cyclerGui := ScriptStatusGui(text,,)
-    cyclerGui.Show()
-    ; ToolTip text
-    ; SetTimer () => ToolTip(), -1500
+
+    ; StatusGui.Show(text, "cursor")
+    ToolTip text
+    SetTimer () => ToolTip(), -1500
+    ;SetTimer () => tooltipGui.Show(), -1500
 }
 
 ; Get windows grouped by class
@@ -45,11 +50,19 @@ GetWindowsByClass() {
         if (procName = "AutoHotkey64.exe")
             continue
 
+        ; initialize a blank string instead of array
         if !windows.Has(procName)
-            windows[procName] := []
+           windows[procName] := ''
 
-        windows[procName].Push(hwnd)
+        ; hwnd is no longer an Integer, so it needs winTitle criteria
+        ; newline is the default delimiter for Sort
+        windows[procName] .= 'ahk_id ' . hwnd . '`n'
     }
+    ; sort the strings, trim the final newline, and split into array
+    for procName, hwnds in windows {
+        windows[procName] := StrSplit(Trim(Sort(hwnds),'`n'), '`n')
+    }
+
     return windows
 }
 
@@ -61,8 +74,9 @@ CycleClasses(direction) {
 
     ; Get sorted list of classes
     classes := []
-    for _class in windows
+    for _class in windows {
         classes.Push(_class)
+    }
 
     ; Find current class index
     currentClass := WinGetProcessName("A")
@@ -109,3 +123,9 @@ CycleWindows(direction) {
     WinActivate classWindows[currentWindowIndex[currentClass]]
     ShowInfo(windows, currentClass)
 }
+
+; Hotkeys
+^!Up::CycleClasses("prev")
+^!Down::CycleClasses("next")
+^!Left::CycleWindows("prev")
+^!Right::CycleWindows("next")
