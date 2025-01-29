@@ -21,7 +21,9 @@ WaitForChoice(name, options*) {
     ih := InputHook("L1", "{Pause}{Esc}{Enter}", endKeys)
     ih.Start()
     ih.Wait()
-    StatusGui.Hide()
+    ttGui.Destroy()
+
+    SetScrollLockState 0
 
     SetScrollLockState 0
 
