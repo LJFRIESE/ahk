@@ -39,44 +39,52 @@ HotkeyGuide.RegisterHotkey("Macros", "F1{long hold}", "Inspect recording")
 #Include ActionMenu.ahk
 HotkeyGuide.RegisterHotkey("Hotkeys", "Esc Space", "Leader")
 HotkeyGuide.RegisterHotkey("Hotkeys", "{leader}Space", "Open Action Menu")
-HotkeyGuide.RegisterHotkey("Hotkeys", "^+S", "SnippingTool")
+; HotkeyGuide.RegisterHotkey("Hotkeys", "^+S", "SnippingTool")
 
 
 #Include windowCycler.ahk
 
-; Block Win keys
-#^!Shift:: Send "{Blind}{vk07}"
-#^+Alt:: Send "{Blind}{vk07}"
-#!+Ctrl:: Send "{Blind}{vk07}"
-^!+LWin:: Send "{Blind}{vk07}"
-^!+RWin:: Send "{Blind}{vk07}"
-
 ; Always active
-^+S::Run "SnippingTool"
 
-+!Up::CycleClasses("prev")
-+!Down::CycleClasses("next")
-+!Left::CycleWindows("prev")
-+!Right::CycleWindows("next")
+ +!Up::CycleClasses("prev")
+ +!Down::CycleClasses("next")
+ +!Left::CycleWindows("prev")
+ +!Right::CycleWindows("next")
+
+F13::ScrollLock
+
+KeyWaitAny(Options:="")
+{
+    ih := InputHook(Options)
+    if !InStr(Options, "V")
+        ih.VisibleNonText := true
+    ih.KeyOpt("{All}", "E")  ; End
+    ih.Start()
+    ih.Wait()
+    return ih.EndKey  ; Return the key name
+}
 
 ; Leader
 ~Esc & Space::{
     SetScrollLockState 1
-    Sleep 500
+    ; Waits for the user to press any key.
+    KeyWaitAny()
     SetScrollLockState 0
 }
 
-F2::ScrollLock
 
 #HotIf GetKeyState("ScrollLock", "T")
-    w:: KeyWait("Esc", "d") ; Keep leader {scrolllock} active
-    Space:: Menu_Main()
-    +h::HotkeyGuide.Show() ; Show help pndopup
+    ; Everything is passed through with ~ and then eaten by KeyWaitAny to toggle off ScrollLock
+    ~Space:: Menu_Main()
+    ~h::HotkeyGuide.Show() ; Show help poppup
+    ~x::WinClose("A")
 
     ; Window Control
-    *Left::Send "{blind}#{Left}"
-    *Up::Send "{blind}#{Up}"
-    *Down::Send "{blind}#{Down}"
-    *Right::Send "{blind}#{Right}"
+    ~*Left::Send "#{Left}"
+    ~*Up::Send "#{Up}"
+    ~*Down::Send "#{Down}"
+    ~*Right::Send "#{Right}"
+
+
 #HotIf
 

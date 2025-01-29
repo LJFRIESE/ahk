@@ -16,12 +16,14 @@ WaitForChoice(name, options*) {
     }
 
     ; === Tooltip + Wait for input ===
-    StatusGui.Show(tooltipStr,"center",10000)
+    ttGui := ScriptStatusGui(tooltipStr,"center",3000)
     ;
     ih := InputHook("L1", "{Pause}{Esc}{Enter}", endKeys)
     ih.Start()
     ih.Wait()
     StatusGui.Hide()
+
+    SetScrollLockState 0
 
     if ih.EndReason = "EndKey" && ih.EndKey = "Escape"
         return
@@ -107,7 +109,6 @@ runOrActivate(name){
     } else {
         Run(name)
     }
-
 }
 
 Menu_Main() {
@@ -119,6 +120,7 @@ Menu_Main() {
         ["l", "List"],
         ["k", "Kill"],
         [":-----  Misc -----"," "],
+        ["s", "Snipping Tool"],
         ["e", "File Explorer"],
         ["c", "Chrome"]
        )
@@ -128,6 +130,8 @@ Menu_Main() {
             runOrActivate("explorer.exe")
         case "c":
             runOrActivate("chrome.exe")
+        case "s":
+            runOrActivate("SnippingTool.exe")
         case "r":
             ReloadAllScripts()
         case "k":

@@ -1,10 +1,5 @@
-#Requires AutoHotkey v2.0
-#SingleInstance
-#Include Functions.ahk
-
 ; Global variables
 global currentWindowIndex := Map()
-
 ; Show tooltip with class info and window titles
 ShowInfo(windows, currentClass) {
     text := ""
@@ -30,10 +25,7 @@ ShowInfo(windows, currentClass) {
         }
     }
 
-    ; StatusGui.Show(text, "cursor")
-    ToolTip text
-    SetTimer () => ToolTip(), -1500
-    ;SetTimer () => tooltipGui.Show(), -1500
+    ScriptStatusGui(text, "cursor", 2000)
 }
 
 ; Get windows grouped by class
@@ -123,9 +115,3 @@ CycleWindows(direction) {
     WinActivate classWindows[currentWindowIndex[currentClass]]
     ShowInfo(windows, currentClass)
 }
-
-; Hotkeys
-^!Up::CycleClasses("prev")
-^!Down::CycleClasses("next")
-^!Left::CycleWindows("prev")
-^!Right::CycleWindows("next")

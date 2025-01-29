@@ -3,58 +3,46 @@
 #Warn
 
 ; Utility function
-Join(arr, delimiter := ",") {
+Join(arr, sort := false, delimiter := ",") {
     result := ""
     for index, value in arr {
         if index > 1
             result .= delimiter
         result .= value
     }
+    if (sort) {
+        result := Sort(result, "D" . delimiter)
+        }
     return result
 }
 
-
 ; Create GUI for status popup
-class StatusGui {
-    static StatusGui := false
+ScriptStatusGui(message, location := "corner", duration := 3000)
+{
+    statusGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
+    statusGui.SetFont("s10", "Segoe UI")
+    statusGui.Add("Text", , message)
+    statusGui.BackColor := "F0F0F0"
 
-    static Show(message, location:= "corner", duration := 3000) {
-        if this.StatusGui {
-            this.StatusGui.Destroy()
-            this.StatusGui := false
-        }
-        this.CreateStatusGui(message, location, duration)
-        this.StatusGui.Show()
+    if (location = "corner") {
+    ; Position at bottom right of primary monitor
+    MonitorGetWorkArea(1, &left, &top, &right, &bottom)
+        statusGui.Show("NoActivate AutoSixe x" . (right - 300) . " y" . (bottom - 100))
+    }
+    ; Add cursor maybe for else
+    if (location = "center"){
+        statusGui.Show("NoActivate AutoSize")
     }
 
-    static Hide() {
-        if this.StatusGui
-            this.StatusGui.Hide()
+    if (location = "cursor"){
+        CoordMode "Mouse", "Screen"
+        MouseGetPos(&xpos, &ypos)
+        statusGui.Show("NoActivate x" . xpos . " y" . ypos . " w450")
     }
 
-   static CreateStatusGui(message, location, duration) {
-	this.StatusGui := true
-        this.statusGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
-        this.statusGui.OnEvent('Escape', (*) => this.statusGui.destroy())
-
-        this.statusGui.SetFont("s10", "Segoe UI")
-        this.statusGui.Add("Text", , message)
-        this.statusGui.BackColor := "F0F0F0"
-
-        if (location = "corner") {
-            ; Position at bottom right of primary monitor
-            MonitorGetWorkArea(1, &left, &top, &right, &bottom)
-            this.statusGui.Show("NoActivate x" . (right - 300) . " y" . (bottom - 100) . " w280")
-            }
-            ; Add cursor maybe for else
-            if (location = "center"){
-                this.statusGui.Show("NoActivate")
-            } else {
-                this.statusGui.Show("NoActivate")
-            }
-        }
-    }
-
+    SetTimer(() => statusGui.Destroy(), -duration)
+    return statusGui
+}
 
 ; Help popup
 global windowWidth := A_ScreenWidth*.7
@@ -84,44 +72,44 @@ class HotkeyGuide {
     }
 
     static CreateOverlay() {
-        this.overlayGui := Gui("+AlwaysOnTop -Caption +E0x20 +Owner")
-        this.overlayGui.BackColor := "222222"
-        this.overlayGui.MarginY := 10
-        this.overlayGui.OnEvent('Escape', (*) => this.overlayGui.Hide())
-        WinSetTransparent(250, this.overlayGui)
+    this.overlayGui := Gui("+AlwaysOnTop -Caption +E0x20 +Owner")
+    this.overlayGui.BackColor := "222222"
+    this.overlayGui.MarginY := 10
+    this.overlayGui.OnEvent('Escape', (*) => this.overlayGui.Hide())
+    WinSetTransparent(250, this.overlayGui)
 
-        ; Calculate column widths and positions
-        columnWidth := windowWidth / 4
+    ; Calculate column widths and positions
+    columnWidth := windowWidth / 4
 
-        leftColumnX := "XM"
-        rightColumnX := "XS" . columnWidth . " YS"
+    leftColumnX := "XM"
+    rightColumnX := "XS" . columnWidth . " YS"
 
-        ; Track which column we're in (0 = left, 1 = right)
-        currentColumn := 0
+    ; Track which column we're in (0 = left, 1 = right)
+    currentColumn := 0
 
-        for scriptName, hotkeys in this.globalRegistry {
-            ; Determine X position based on current column
-            xPos := currentColumn = 0 ? leftColumnX : rightColumnX
+    for scriptName, hotkeys in this.globalRegistry {
+        ; Determine X position based on current column
+        xPos := currentColumn = 0 ? leftColumnX : rightColumnX
 
-            ; Add section title
-            this.overlayGui.SetFont("s12 w600")
-            this.overlayGui.Add("Text", "Section " . xPos . " cFFFFFF", scriptName)
+        ; Add section title
+        this.overlayGui.SetFont("s12 w600")
+        this.overlayGui.Add("Text", "Section " . xPos . " cFFFFFF", scriptName)
 
-            ; Add hotkeys and descriptions
-            for key, desc in hotkeys {
-                this.overlayGui.SetFont("s10 w600")
-                ; Key
-                this.overlayGui.Add("Text", "XS cCCCCCC", this.FormatHotkeyString(key))
-                ; Description
-                this.overlayGui.SetFont("s10 w400")
-                this.overlayGui.Add("Text", "YP cCCCCCC", desc)
-            }
-
-            ; Toggle column for next section
-            currentColumn := currentColumn = 0 ? 1 : 0
+        ; Add hotkeys and descriptions
+        for key, desc in hotkeys {
+            this.overlayGui.SetFont("s10 w600")
+            ; Key
+            this.overlayGui.Add("Text", "XS cCCCCCC", this.FormatHotkeyString(key))
+            ; Description
+            this.overlayGui.SetFont("s10 w400")
+            this.overlayGui.Add("Text", "YP cCCCCCC", desc)
         }
 
-        this.overlayGui.Add("Text", "YP+50 Center cFFFFFF", "Press Escape to Close")
+        ; Toggle column for next section
+        currentColumn := currentColumn = 0 ? 1 : 0
+    }
+
+    this.overlayGui.Add("Text", "YP+50 Center cFFFFFF", "Press Escape to Close")
 }
 
     static FormatHotkeyString(hotkeyStr) {
@@ -154,7 +142,7 @@ RunAllScripts() {
             scriptCount++
             startedScripts.Push(A_LoopFileName)
         } catch Error as e {
-            StatusGui.Show("Failed to run: " . A_LoopFilePath . "`nError: " . e.Message)
+            ScriptStatusGui("Failed to run: " . A_LoopFilePath . "`nError: " . e.Message)
         }
 
         Sleep(100)
@@ -164,9 +152,9 @@ RunAllScripts() {
     if scriptCount > 0 {
         message := "Started " scriptCount " scripts:`n"
         message .= Join(startedScripts, "`n")
-        StatusGui.Show(message)
+        ScriptStatusGui(message)
     } else {
-        StatusGui.Show("No new scripts started")
+        ScriptStatusGui("No new scripts started")
     }
 
 }
@@ -193,7 +181,7 @@ ListActiveScripts() {
         message := "No active scripts found"
     }
 
-    StatusGui.Show(message)
+    ScriptStatusGui(message)
 }
 
 KillActiveScripts() {
@@ -212,7 +200,7 @@ KillActiveScripts() {
         message := "No other scripts found to terminate"
     }
 
-    StatusGui.Show(message)
+    ScriptStatusGui(message)
     ExitApp()
 }
 
@@ -224,7 +212,7 @@ ReloadAllScripts() {
     winList := WinGetList("ahk_class AutoHotkey")
 
     if !winList.Length {
-        StatusGui("No AutoHotkey scripts found running")
+        ScriptStatusGui("No AutoHotkey scripts found running")
         return
     }
 
@@ -259,5 +247,5 @@ ReloadAllScripts() {
         message .= "`n`nFailed Scripts:`n"
         message .= Join(failedScripts, "`n")
     }
-    StatusGui.Show(message)
+    ScriptStatusGui(message)
 }

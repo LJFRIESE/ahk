@@ -123,60 +123,32 @@ Hotkey "*NumpadEnd", ButtonJump ;ButtonAcceleration
 Hotkey "*NumpadPgUp", ButtonJump ;ButtonAcceleration
 Hotkey "*NumpadPgDn", ButtonJump ;ButtonAcceleration
 
-ToggleKeyActivationSupport  ; Initialize based on current ScrollLock state.
-
 ;Key activation support
 
-~ScrollLock::
-ToggleKeyActivationSupport(*)
-{
+~F2:: {
     ; Wait for it to be released because otherwise the hook state gets reset
     ; while the key is down, which causes the up-event to get suppressed,
     ; which in turn prevents toggling of the ScrollLock state/light:
-    KeyWait "ScrollLock"
-    if GetKeyState("ScrollLock", "T")
-    {
-        Hotkey "*Numpad0", "On"
-        Hotkey "*NumpadIns", "On"
-        Hotkey "*Numpad5", "On"
-        Hotkey "*NumpadDel", "On"
-        Hotkey "*NumpadDiv", "On"
-        Hotkey "*NumpadMult", "On"
+    ; KeyWait "ScrollLock"
+        Hotkey "*Numpad0", "Toggle"
+        Hotkey "*NumpadIns", "Toggle"
+        Hotkey "*Numpad5", "Toggle"
+        Hotkey "*NumpadDel", "Toggle"
+        Hotkey "*NumpadDiv", "Toggle"
+        Hotkey "*NumpadMult", "Toggle"
 
-        Hotkey "*NumpadAdd", "On"
-        Hotkey "*NumpadEnter", "On"
+        Hotkey "*NumpadAdd", "Toggle"
+        Hotkey "*NumpadEnter", "Toggle"
 
-        Hotkey "*NumpadUp", "On"
-        Hotkey "*NumpadDown", "On"
-        Hotkey "*NumpadLeft", "On"
-        Hotkey "*NumpadRight", "On"
-        Hotkey "*NumpadHome", "On"
-        Hotkey "*NumpadEnd", "On"
-        Hotkey "*NumpadPgUp", "On"
-        Hotkey "*NumpadPgDn", "On"
+        Hotkey "*NumpadUp", "Toggle"
+        Hotkey "*NumpadDown", "Toggle"
+        Hotkey "*NumpadLeft", "Toggle"
+        Hotkey "*NumpadRight", "Toggle"
+        Hotkey "*NumpadHome", "Toggle"
+        Hotkey "*NumpadEnd", "Toggle"
+        Hotkey "*NumpadPgUp", "Toggle"
+        Hotkey "*NumpadPgDn", "Toggle"
     }
-    else
-    {
-        Hotkey "*Numpad0", "Off"
-        Hotkey "*NumpadIns", "Off"
-        Hotkey "*Numpad5", "Off"
-        Hotkey "*NumpadDel", "Off"
-        Hotkey "*NumpadDiv", "Off"
-        Hotkey "*NumpadMult", "Off"
-
-        Hotkey "*NumpadAdd", "Off"
-        Hotkey "*NumpadEnter", "Off"
-
-        Hotkey "*NumpadUp", "Off"
-        Hotkey "*NumpadDown", "Off"
-        Hotkey "*NumpadLeft", "Off"
-        Hotkey "*NumpadRight", "Off"
-        Hotkey "*NumpadHome", "Off"
-        Hotkey "*NumpadEnd", "Off"
-        Hotkey "*NumpadPgUp", "Off"
-        Hotkey "*NumpadPgDn", "Off"
-    }
-}
 
 ;Mouse click support
 
