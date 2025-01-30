@@ -57,8 +57,9 @@ KeyWaitAny(Options:="")
 {
     ih := InputHook(Options)
     if !InStr(Options, "V")
-        ih.VisibleNonText := true
+        ih.VisibleNonText := false
     ih.KeyOpt("{All}", "E")  ; End
+    ih.KeyOpt("{LCtrl}{RCtrl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}", "-E")
     ih.Start()
     ih.Wait()
     return ih.EndKey  ; Return the key name
@@ -80,11 +81,10 @@ KeyWaitAny(Options:="")
     ~x::WinClose("A")
 
     ; Window Control
-    ~*Left::Send "#{Left}"
-    ~*Up::Send "#{Up}"
-    ~*Down::Send "#{Down}"
-    ~*Right::Send "#{Right}"
-
+    *Left::Send "{Blind}#{Left}"
+    *Up::Send "{Blind}#{Up}"
+    *Down::Send "{Blind}#{Down}"
+    *Right::Send "{Blind}#{Right}"
 
 #HotIf
 
