@@ -46,10 +46,10 @@ HotkeyGuide.RegisterHotkey("Hotkeys", "{leader}Space", "Open Action Menu")
 
 ; Always active
 
- +!Up::CycleClasses("prev")
- +!Down::CycleClasses("next")
- +!Left::CycleWindows("prev")
- +!Right::CycleWindows("next")
+ +!Up::Tabber.CycleClasses("prev")
+ +!Down::Tabber.CycleClasses("next")
+ +!Left::Tabber.CycleWindows("prev")
+ +!Right::Tabber.CycleWindows("next")
 
 F13::ScrollLock
 

@@ -20,6 +20,7 @@ Join(arr, sort := false, delimiter := ",") {
 ScriptStatusGui(message, location := "corner", duration := 3000)
 {
     statusGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
+    statusGui.Name := "StatusGui"
     statusGui.SetFont("s10", "Segoe UI")
     statusGui.Add("Text", , message)
     statusGui.BackColor := "F0F0F0"
