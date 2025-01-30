@@ -28,7 +28,7 @@ ScriptStatusGui(message, location := "corner", duration := 3000)
     if (location = "corner") {
     ; Position at bottom right of primary monitor
     MonitorGetWorkArea(1, &left, &top, &right, &bottom)
-        statusGui.Show("NoActivate AutoSixe x" . (right - 300) . " y" . (bottom - 100))
+        statusGui.Show("NoActivate AutoSize x" . (right - 300) . " y" . (bottom - 100))
     }
     ; Add cursor maybe for else
     if (location = "center"){
@@ -128,37 +128,6 @@ class HotkeyGuide {
 }
 
 ; AHK Control
-RunAllScripts() {
-    scriptCount := 0
-    startedScripts := []
-
-    Loop Files A_WorkingDir "\*.ahk" {
-        if (A_LoopFilePath = A_ScriptFullPath)
-            continue
-        if (InStr(A_LoopFilePath, "HotkeyGuide"))
-            continue
-
-        try {
-            Run A_LoopFilePath
-            scriptCount++
-            startedScripts.Push(A_LoopFileName)
-        } catch Error as e {
-            ScriptStatusGui("Failed to run: " . A_LoopFilePath . "`nError: " . e.Message)
-        }
-
-        Sleep(100)
-    }
-
-    ; Show status popup
-    if scriptCount > 0 {
-        message := "Started " scriptCount " scripts:`n"
-        message .= Join(startedScripts, "`n")
-        ScriptStatusGui(message)
-    } else {
-        ScriptStatusGui("No new scripts started")
-    }
-
-}
 
 ; Show active scripts
 ListActiveScripts() {
