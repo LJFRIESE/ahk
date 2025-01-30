@@ -34,7 +34,8 @@ GetWindowsByClass() {
     for hwnd in WinGetList() {
         ; Skip if no title
         title := WinGetTitle(hwnd)
-        if (!title || title = "Program Manager")
+  	; Nil = irrelevant, the other two are temp windows related to the setting of the popup itself
+        if (!title || title = "Program Manager" || title = "PopupHost") 
             continue
 
         ; Skip AutoHotkey windows
@@ -96,8 +97,11 @@ CycleClasses(direction) {
 ; Cycle windows within current class
 CycleWindows(direction) {
     windows := GetWindowsByClass()
-    currentClass := WinGetProcessName("A")
+    if windows.Count = 1 {
+        return
+    }
 
+    currentClass := WinGetProcessName("A")
     if !windows.Has(currentClass)
         return
 
