@@ -25,8 +25,6 @@ WaitForChoice(name, options*) {
 
     SetScrollLockState 0
 
-    SetScrollLockState 0
-
     if ih.EndReason = "EndKey" && ih.EndKey = "Escape"
         return
 
@@ -47,31 +45,17 @@ WaitForChoice(name, options*) {
 }
 
 ; === Menu functions ===
-; 1st option is the option key
-; 2nd option is the option description
-; Menu_Config() {
-;     choice := WaitForChoice("[C]onfig",
-;         ; ["1", "Run runOpenWithConfigurator"],
-;         ["1", "A test"]
-;         ["2", "test"])
-;
-;     switch choice, 0 {
-;         case "1":
-;             ; #Include openWith.ahk
-;             ; runOpenWithConfigurator()
-;         case "2":
-;             SendInput("Test text 2")
-;         default:
-;             Menu_Main()
-;     }
-; }
-
 Menu_Applications() {
     choice := WaitForChoice("[A]pplications",
-        ["o", "Outlook"],
-        ["v", "VMWare"])
+        ["v", "VPN Toggle"],
+        ["o", "Outlook"]
+        ; ["s", "[SAG] VMWare"]
+        )
 
     switch choice, 0 {
+        case "v":
+            #Include Cisco.ahk
+            CiscoConnectToggle()
         case "o":
             if (!ProcessExist("outlook.exe"))
                 {
@@ -82,9 +66,8 @@ Menu_Applications() {
 
             MailItem := outlookApp.CreateItem(0)
             MailItem.Display
-
-        case "v":
-            return
+        ; case "s":
+        ;     return
         default:
             Menu_Main()
     }
@@ -140,7 +123,6 @@ Menu_Main() {
              KillActiveScripts()
         case "l":
             ListActiveScripts()
-        ; s:: RunAllScripts()
         default:
             return
         }
