@@ -1,5 +1,4 @@
 CiscoConnectToggle() {
-
     SetTitleMatchMode 3
     SetControlDelay -1
     DetectHiddenWindows true
@@ -16,6 +15,9 @@ CiscoConnectToggle() {
         }
     }
     if mode = "Disconnect" {
+		;Sleep 5000
+		WinWaitNotActive("Cisco AnyConnect Secure Mobility Client")
+        WinKill("Cisco AnyConnect Secure Mobility Client") 
         msg := ScriptStatusGui("VPN Disconnected", "corner", 3000)
     }
 }
