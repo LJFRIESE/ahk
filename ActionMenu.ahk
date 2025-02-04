@@ -105,12 +105,19 @@ Menu_Main() {
         ["l", "List"],
         ["k", "Kill"],
         [":-----  Misc -----"," "],
+        ["t", "Terminal"],
         ["s", "Snipping Tool"],
         ["e", "File Explorer"],
         ["c", "Chrome"]
        )
 
     switch choice, 0 {
+        case "t":
+            if WinExist("ahk_exe WindowsTerminal.exe") {
+                WinActivate("ahk_exe WindowsTerminal.exe")
+            } else {
+                Run("wt.exe")
+            }
         case "e":
             runOrActivate("explorer.exe")
         case "c":
@@ -127,4 +134,3 @@ Menu_Main() {
             return
         }
 }
-
