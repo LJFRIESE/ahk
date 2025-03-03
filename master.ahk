@@ -35,7 +35,7 @@ HotkeyGuide.RegisterHotkey("Hotkeys", "Esc Space", "Leader")
 HotkeyGuide.RegisterHotkey("Hotkeys", "{leader}Space", "Open Action Menu")
 
 ; Leader
-~Esc & Space::{
+~Esc & Space:: {
     SetScrollLockState 1
     ; Waits for the user to press any key.
     KeyWaitAny()
@@ -44,16 +44,16 @@ HotkeyGuide.RegisterHotkey("Hotkeys", "{leader}Space", "Open Action Menu")
 
 
 #HotIf GetKeyState("ScrollLock", "T")
-    ; Everything is passed through with ~ and then eaten by KeyWaitAny to toggle off ScrollLock
-    ~Space:: Menu_Main()
-    ~h::HotkeyGuide.Show() ; Show help poppup
-    ~x::WinClose("A")
+; Everything is passed through with ~ and then eaten by KeyWaitAny to toggle off ScrollLock
+~Space:: Menu_Main()
+~h:: HotkeyGuide.Show() ; Show help poppup
+~x:: WinClose("A")
 
-    ; Window Control
-    *~Left::Send "{Blind}#{Left}"
-    *~Up::Send "{Blind}#{Up}"
-    *~Down::Send "{Blind}#{Down}"
-    *~Right::Send "{Blind}#{Right}"
+; Window Control
+*~Left:: Send "{Blind}#{Left}"
+*~Up:: Send "{Blind}#{Up}"
+*~Down:: Send "{Blind}#{Down}"
+*~Right:: Send "{Blind}#{Right}"
 #HotIf
 
-; #Include Recorder.ahk 
+; #Include Recorder.ahk
