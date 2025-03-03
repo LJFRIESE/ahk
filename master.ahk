@@ -5,7 +5,6 @@
 #HotIfTimeout 250
 
 #Include Imports.ahk
-Persistent
 
 ; AHK Control
 HotkeyGuide.RegisterHotkey("AHK Control", "{leader}l", "ListActiveScripts")
@@ -56,4 +55,4 @@ HotkeyGuide.RegisterHotkey("Hotkeys", "{leader}Space", "Open Action Menu")
 *~Right:: Send "{Blind}#{Right}"
 #HotIf
 
-; #Include Recorder.ahk
+
