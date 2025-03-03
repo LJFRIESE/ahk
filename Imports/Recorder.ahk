@@ -4,7 +4,7 @@ SetTitleMatchMode(2)
 DetectHiddenWindows(true)
 ;--------------------------
 
-LogFile := A_Temp . "\tmp_macro.ahk"
+LogFile := A_ScriptDir . "\MacroRecorder\macro1.ahk"
 UpdateSettings()
 Recording := false
 Playing := false
@@ -38,7 +38,8 @@ ShowTip(s := "", pos := "y35", color := "Red|00FFFF") {
     SetTimer(ShowTip_ChangeColor, 1000)
 
     ShowTip_ChangeColor() {
-        r := StrSplit(SubStr(bak, 1, InStr(bak, ",") - 1), "|") RecordingControl.SetFont("q3 c" r[idx := Mod(Round(idx), r.Length) + 1])
+        r := StrSplit(SubStr(bak, 1, InStr(bak, ",") - 1), "|")
+        RecordingControl.SetFont("q3 c" r[idx := Mod(Round(idx), r.Length) + 1])
         return
     }
 }
@@ -47,7 +48,7 @@ ShowTip(s := "", pos := "y35", color := "Red|00FFFF") {
 
 KeyAction(HotkeyName) {
     if (Recording) {
-        Stop
+        Stop()
         return
     }
 
@@ -57,22 +58,22 @@ KeyAction(HotkeyName) {
         if (Duration < 400) {
             ShowTip
             if (!GetKeyState(ActionKey)) {
-                ShowTip
-                PlayKeyAction
+                ShowTip()
+                PlayKeyAction()
                 break
             }
         } else if (Duration < 1400) {
             ShowTip("RECORD")
             if (!GetKeyState(ActionKey)) {
-                ShowTip
-                RecordKeyAction
+                ShowTip()
+                RecordKeyAction()
                 break
             }
         } else {
             ShowTip("SHOW SOURCE")
             if (!GetKeyState(ActionKey)) {
-                ShowTip
-                EditKeyAction
+                ShowTip()
+                EditKeyAction()
                 break
             }
         }
@@ -198,7 +199,7 @@ EditKeyAction() {
     } catch OSError as err {
 
     }
-    Run("`"" EnvGet("LocalAppData") "\Microsoft\WindowsApps\Notepad.exe`" `"" LogFile "`"")
+    Run("Notepad++.exe " . LogFile)
     return
 }
 
