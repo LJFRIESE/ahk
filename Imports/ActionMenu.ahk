@@ -50,7 +50,8 @@ Menu_Applications() {
     choice := WaitForChoice("[A]pplications",
         ["v", "VPN Toggle"],
 		["s", "[SAG] VMWare"],
-        ["o", "Outlook"]
+        ["0", "Outlook - VOCA/VIS-VII"] ;,
+		;["1", "Automated Reporter"]
         )
 
     switch choice, 0 {
@@ -66,11 +67,14 @@ Menu_Applications() {
             outlookApp := ComObjActive("Outlook.Application")
 
             MailItem := outlookApp.CreateItem(0)
-            MailItem.Display
+			MailItem.Subject :=  "Weekly Report | VOCA/VIS-VII"    
+            MailItem.Display   
          case "s":
              runOrActivate("vmware-view.exe")
+         ;case "1":
+         ;    Run(A_ComSpec ' /c "C:\Users\LUCASFRI\git\SIBA_R_REPORTING\run.bat"')
         default:
-            Menu_Main()
+            Menu_Main()  
     }
 }
 
@@ -80,9 +84,9 @@ Menu_Files() {
         ["2", "Ad Hoc Tracker"])
 
     switch choice, 0 {
-        case "1":
+        case "r":
             Run("M:\\REPORTS\\Report Inventory.xlsx")
-        case "2":
+        case "a":
             Run("M:\\REPORTS\\AD HOC\\Ad Hoc Request Tracker.xlsx")
         default:
             Menu_Main()
