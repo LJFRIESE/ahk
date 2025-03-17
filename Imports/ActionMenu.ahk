@@ -56,8 +56,10 @@ Menu_Applications() {
 
     switch choice, 0 {
         case "v":
-            #Include Cisco.ahk
-            CiscoConnectToggle()
+            #Include RemoteWork.ahk
+            RemoteWork.toggleVPN()
+		 case "c":
+            RemoteWork.toggleAware360()
         case "o":
             if (!ProcessExist("outlook.exe"))
                 {
