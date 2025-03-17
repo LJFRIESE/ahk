@@ -84,9 +84,9 @@ Menu_Files() {
         ["2", "Ad Hoc Tracker"])
 
     switch choice, 0 {
-        case "r":
+        case "1":
             Run("M:\\REPORTS\\Report Inventory.xlsx")
-        case "a":
+        case "2":
             Run("M:\\REPORTS\\AD HOC\\Ad Hoc Request Tracker.xlsx")
         default:
             Menu_Main()

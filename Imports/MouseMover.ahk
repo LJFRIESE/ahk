@@ -1,10 +1,10 @@
 #SingleInstance
 
-SetTimer DetectInactivity, 60000
+; 5 Minutes
+SetTimer DetectInactivity, 30000
 DetectInactivity()
 {
-	; 5 Minutes
-	maxIdleTime := 360000
+	maxIdleTime := 6000
 	static idleEventCount := 0
 	if A_TimeIdle > maxIdleTime
 	{
