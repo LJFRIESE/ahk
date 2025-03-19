@@ -1,356 +1,368 @@
-Thread("NoTimers")
-CoordMode("ToolTip")
-SetTitleMatchMode(2)
-DetectHiddenWindows(true)
-;--------------------------
+#SingleInstance
 
-LogFile := A_ScriptDir . "\MacroRecorder\macro1.ahk"
-UpdateSettings()
-Recording := false
-Playing := false
-ActionKey := "F1"
+class MacroRecorder {
 
-Hotkey(ActionKey, KeyAction)
-return
+    ;--------------------------
+    static LogFile := A_ScriptDir . "\MacroRecorder\macro1.ahk"
+    static Recording := false
+    static Playing := false
+    static ActionKey := "F1"
+    static LogArr := []
 
-ShowTip(s := "", pos := "y35", color := "Red|00FFFF") {
-    static bak := "", idx := 0, ShowTip := Gui(), RecordingControl
-    if (bak = color "," pos "," s) {
-        return
+    static id := ""
+    static title := ""
+    static oldid := ""
+    static oldtitle := ""
+    static RelativeX := 0
+    static RelativeY := 0
+
+    static __New() {
+        Thread("NoTimers")
+        CoordMode("ToolTip")
+        SetTitleMatchMode(2)
+        DetectHiddenWindows(true)
+
+        this.UpdateSettings()
+
+        Hotkey(this.ActionKey, this.KeyAction.Bind(this))
     }
 
-    bak := color "," pos "," s
-    SetTimer(ShowTip_ChangeColor, 0)
-    ShowTip.Destroy()
-    if (s = "") {
-        return
-    }
 
-    ShowTip := Gui("+LastFound +AlwaysOnTop +ToolWindow -Caption +E0x08000020", "ShowTip")
-    WinSetTransColor("FFFFF0 150")
-    ShowTip.BackColor := "cFFFFF0"
-    ShowTip.MarginX := 10
-    ShowTip.MarginY := 5
-    ShowTip.SetFont("q3 s20 bold cRed")
-    RecordingControl := ShowTip.Add("Text", , s)
-    ShowTip.Show("NA " . pos)
-
-    SetTimer(ShowTip_ChangeColor, 1000)
-
-    ShowTip_ChangeColor() {
-        r := StrSplit(SubStr(bak, 1, InStr(bak, ",") - 1), "|")
-        RecordingControl.SetFont("q3 c" r[idx := Mod(Round(idx), r.Length) + 1])
-        return
-    }
-}
-
-;============ Hotkey =============
-
-KeyAction(HotkeyName) {
-    if (Recording) {
-        Stop()
-        return
-    }
-
-    KeyDown := A_TickCount
-    loop {
-        Duration := A_TickCount - KeyDown
-        if (Duration < 400) {
-            ShowTip()
-            if (!GetKeyState(ActionKey)) {
-                ShowTip()
-                PlayKeyAction()
-                break
-            }
-        } else if (Duration < 1400) {
-            ShowTip("RECORD")
-            if (!GetKeyState(ActionKey)) {
-                ShowTip()
-                RecordKeyAction()
-                break
-            }
-        } else {
-            ShowTip("SHOW SOURCE")
-            if (!GetKeyState(ActionKey)) {
-                ShowTip()
-                EditKeyAction()
-                break
-            }
-        }
-    }
-}
-
-RecordKeyAction() {
-    if (Recording) {
-        Stop()
-        return
-    }
-    #SuspendExempt
-    RecordScreen()
-}
-
-RecordScreen() {
-    global LogArr := []
-    global oldid := ""
-    global Recording := false
-    global RelativeX, RelativeY
-
-    if (Recording || Playing)
-        return
-    UpdateSettings()
-    LogArr := []
-    oldid := ""
-    Log()
-    Recording := true
-    SetHotkey(1)
-    CoordMode("Mouse", "Screen")
-    MouseGetPos(&RelativeX, &RelativeY)
-    ShowTip("Recording")
-    return
-}
-
-UpdateSettings() {
-    global MouseMode, RecordSleep
-    if (FileExist(LogFile)) {
-        LogFileObject := FileOpen(LogFile, "r")
-
-        Loop 3 {
-            LogFileObject.ReadLine()
-        }
-        MouseMode := RegExReplace(LogFileObject.ReadLine(), ".*=")
-
-        LogFileObject.ReadLine()
-        RecordSleep := RegExReplace(LogFileObject.ReadLine(), ".*=")
-
-        LogFileObject.Close()
-    } else {
-        MouseMode := "screen"
-        RecordSleep := "false"
-    }
-
-    if (MouseMode != "screen" && MouseMode != "window" && MouseMode != "relative")
-        MouseMode := "screen"
-
-    if (RecordSleep != "true" && RecordSleep != "false")
-        RecordSleep := "false"
-}
-
-Stop() {
-    global LogArr, Recording, isPaused
-    #SuspendExempt
-    if (Recording) {
-        if (LogArr.Length > 0) {
-            UpdateSettings()
-
-            s := ";Press " ActionKey " to play. Hold to record. Long hold to edit`n;#####SETTINGS#####`n;What is the preferred method of recording mouse coordinates (screen,window,relative)`n;MouseMode=" MouseMode "`n;Record sleep between input actions (true,false)`n;RecordSleep=" RecordSleep "`nLoop(1)`n{`n`nStartingValue := 0`ni := RegRead(`"HKEY_CURRENT_USER\SOFTWARE\`" A_ScriptName, `"i`", StartingValue)`nRegWrite(i + 1, `"REG_DWORD`", `"HKEY_CURRENT_USER\SOFTWARE\`" A_ScriptName, `"i`")`n`nSetKeyDelay(30)`nSendMode(`"Event`")`nSetTitleMatchMode(2)"
-
-            if (MouseMode == "window") {
-                s .= "`n;CoordMode(`"Mouse`", `"Screen`")`nCoordMode(`"Mouse`", `"Window`")`n"
-            } else {
-                s .= "`nCoordMode(`"Mouse`", `"Screen`")`n;CoordMode(`"Mouse`", `"Window`")`n"
-            }
-
-            For k, v in LogArr
-                s .= "`n" v "`n"
-            s .= "`n`n}`nExitApp()`n`n" ActionKey "::ExitApp()`n"
-            s := RegExReplace(s, "\R", "`n")
-            if (FileExist(LogFile))
-                FileDelete(LogFile)
-            FileAppend(s, LogFile, "UTF-16")
-            s := ""
-        }
-        Recording := 0
-        LogArr := ""
-        SetHotkey(0)
-    }
-
-    ShowTip()
-    Suspend(false)
-    Pause(false)
-    isPaused := false
-    return
-}
-
-PlayKeyAction() {
-    #SuspendExempt
-    if (Recording || Playing)
-        Stop()
-    ahk := A_AhkPath
-    if (!FileExist(ahk))
-    {
-        MsgBox("Can't Find " ahk " !", "Error", 4096)
-        Exit()
-    }
-
-    if (A_IsCompiled) {
-        Run(ahk " /script /restart `"" LogFile "`"")
-    } else {
-        Run(ahk " /restart `"" LogFile "`"")
-    }
-    return
-}
-
-EditKeyAction() {
-    #SuspendExempt
-    Stop()
-    SplitPath(LogFile, &LogFileName)
-    try {
-        RegDelete("HKEY_CURRENT_USER\SOFTWARE\" LogFileName, "i")
-    } catch OSError as err {
-
-    }
-    Run("Notepad++.exe " . LogFile)
-    return
-}
-
-;============ Functions =============
-
-SetHotkey(f := false) {
-    f := f ? "On" : "Off"
-    Loop 254
-    {
-        k := GetKeyName(vk := Format("vk{:X}", A_Index))
-        if (!(k ~= "^(?i:|Control|Alt|Shift)$"))
-            Hotkey("~*" vk, LogKey, f)
-    }
-    For i, k in StrSplit("NumpadEnter|Home|End|PgUp" . "|PgDn|Left|Right|Up|Down|Delete|Insert", "|")
-    {
-        sc := Format("sc{:03X}", GetKeySC(k))
-        if (!(k ~= "^(?i:|Control|Alt|Shift)$"))
-            Hotkey("~*" sc, LogKey, f)
-    }
-
-    if (f = "On") {
-        SetTimer(LogWindow)
-        LogWindow()
-    } else
-        SetTimer(LogWindow, 0)
-}
-
-LogKey(HotkeyName) {
-    Critical()
-    k := GetKeyName(vksc := SubStr(A_ThisHotkey, 3))
-    k := StrReplace(k, "Control", "Ctrl"), r := SubStr(k, 2)
-    if (r ~= "^(?i:Alt|Ctrl|Shift|Win)$")
-        LogKey_Control(k)
-    else if (k ~= "^(?i:LButton|RButton|MButton)$")
-        LogKey_Mouse(k)
-    else {
-        if (k = "NumpadLeft" || k = "NumpadRight") && !GetKeyState(k, "P")
+    static ShowTip(s := "", pos := "y35", color := "Red|00FFFF") {
+        static bak := "", idx := 0, ShowTip := Gui(), RecordingControl
+        if (bak = color "," pos "," s) {
             return
-        k := StrLen(k) > 1 ? "{" k "}" : k ~= "\w" ? k : "{" vksc "}"
-        Log(k, 1)
+        }
+
+        bak := color "," pos "," s
+        SetTimer(ShowTip_ChangeColor, 0)
+        ShowTip.Destroy()
+        if (s = "") {
+            return
+        }
+
+        ShowTip := Gui("+LastFound +AlwaysOnTop +ToolWindow -Caption +E0x08000021", "ShowTip")
+        WinSetTransColor("FFFFF0 150")
+        ShowTip.BackColor := "cFFFFF0"
+        ShowTip.MarginX := 11
+        ShowTip.MarginY := 5
+        ShowTip.SetFont("q3 s20 bold cRed")
+        RecordingControl := ShowTip.Add("Text", , s)
+        ShowTip.Show("NA " . pos)
+
+        SetTimer(ShowTip_ChangeColor, 1000)
+
+        ShowTip_ChangeColor() {
+            r := StrSplit(SubStr(bak, 1, InStr(bak, ",") - 1), "|")
+            RecordingControl.SetFont("q3 c" r[idx := Mod(Round(idx), r.Length) + 1])
+            return
+        }
     }
-}
 
-LogKey_Control(key) {
-    global LogArr
-    k := InStr(key, "Win") ? key : SubStr(key, 2)
-    Log("{" k " Down}", 1)
-    Critical("Off")
-    ErrorLevel := !KeyWait(key)
-    Critical()
-    Log("{" k " Up}", 1)
-}
+    ;============ Hotkey =============
 
-LogKey_Mouse(key) {
-    global LogArr, RelativeX, RelativeY
-    k := SubStr(key, 1, 1)
+    static KeyAction(HotkeyName) {
+        if (this.Recording) {
+            this.Stop()
+            return
+        }
 
-    ;screen
-    CoordMode("Mouse", "Screen")
-    MouseGetPos(&X, &Y, &id)
-    Log((MouseMode == "window" || MouseMode == "relative" ? ";" : "") "MouseClick(`"" k "`", " X ", " Y ",,, `"D`") `;screen")
+        KeyDown := A_TickCount
+        loop {
+            Duration := A_TickCount - KeyDown
+            if (Duration < 400) {
+                this.ShowTip()
+                if (!GetKeyState(this.ActionKey)) {
+                    this.ShowTip()
+                    this.PlayKeyAction()
+                    break
+                }
+            } else if (Duration < 1400) {
+                this.ShowTip("RECORD")
+                if (!GetKeyState(this.ActionKey)) {
+                    this.ShowTip()
+                    this.RecordKeyAction()
+                    break
+                }
+            } else {
+                this.ShowTip("SHOW SOURCE")
+                if (!GetKeyState(this.ActionKey)) {
+                    this.ShowTip()
+                    this.EditKeyAction()
+                    break
+                }
+            }
+        }
+    }
 
-    ;window
-    CoordMode("Mouse", "Window")
-    MouseGetPos(&WindowX, &WindowY, &id)
-    Log((MouseMode != "window" ? ";" : "") "MouseClick(`"" k "`", " WindowX ", " WindowY ",,, `"D`") `;window")
+    static RecordKeyAction() {
+        if (this.Recording) {
+            this.Stop()
+            return
+        }
+        #SuspendExempt
+        this.RecordScreen()
+    }
 
-    ;relative
-    CoordMode("Mouse", "Screen")
-    MouseGetPos(&tempRelativeX, &tempRelativeY, &id)
-    Log((MouseMode != "relative" ? ";" : "") "MouseClick(`"" k "`", " (tempRelativeX - RelativeX) ", " (tempRelativeY - RelativeY) ",,, `"D`", `"R`") `;relative")
-    RelativeX := tempRelativeX
-    RelativeY := tempRelativeY
+    static RecordScreen() {
+        this.Recording := false
 
-    ;get dif
-    CoordMode("Mouse", "Screen")
-    MouseGetPos(&X1, &Y1)
-    t1 := A_TickCount
-    Critical("Off")
-    ErrorLevel := !KeyWait(key)
-    Critical()
-    t2 := A_TickCount
-    if (t2 - t1 <= 200)
-        X2 := X1, Y2 := Y1
-    else
-        MouseGetPos(&X2, &Y2)
-
-    ;log screen
-    i := LogArr.Length - 2, r := LogArr[i]
-    if (InStr(r, ",,, `"D`")") && Abs(X2 - X1) + Abs(Y2 - Y1) < 5)
-        LogArr[i] := SubStr(r, 1, -16) ") `;screen", Log()
-    else
-        Log((MouseMode == "window" || MouseMode == "relative" ? ";" : "") "MouseClick(`"" k "`", " (X + X2 - X1) ", " (Y + Y2 - Y1) ",,, `"U`") `;screen")
-
-    ;log window
-    i := LogArr.Length - 1, r := LogArr[i]
-    if (InStr(r, ",,, `"D`")") && Abs(X2 - X1) + Abs(Y2 - Y1) < 5)
-        LogArr[i] := SubStr(r, 1, -16) ") `;window", Log()
-    else
-        Log((MouseMode != "window" ? ";" : "") "MouseClick(`"" k "`", " (WindowX + X2 - X1) ", " (WindowY + Y2 - Y1) ",,, `"U`") `;window")
-
-    ;log relative
-    i := LogArr.Length, r := LogArr[i]
-    if (InStr(r, ",,, `"D`", `"R`")") && Abs(X2 - X1) + Abs(Y2 - Y1) < 5)
-        LogArr[i] := SubStr(r, 1, -23) ",,,, `"R`") `;relative", Log()
-    else
-        Log((MouseMode != "relative" ? ";" : "") "MouseClick(`"" k "`", " (X2 - X1) ", " (Y2 - Y1) ",,, `"U`", `"R`") `;relative")
-}
-
-LogWindow() {
-    global oldid, LogArr, MouseMode
-    static oldtitle
-    id := WinExist("A")
-    title := WinGetTitle()
-    _class := WinGetClass()
-    if (title = "" && _class = "")
-        return
-    if (id = oldid && title = oldtitle)
-        return
-    oldid := id, oldtitle := title
-    title := SubStr(title, 1, 50)
-    title .= _class ? " ahk_class " _class : ""
-    title := RegExReplace(Trim(title), "[``%;]", "``$0")
-    CommentString := ""
-    if (MouseMode != "window")
-        CommentString := ";"
-    s := CommentString "tt := `"" title "`"`n" CommentString "WinWait(tt)" . "`n" CommentString "if (!WinActive(tt))`n" CommentString "  WinActivate(tt)"
-    i := LogArr.Length
-    r := i = 0 ? "" : LogArr[i]
-    if (InStr(r, "tt = ") = 1)
-        LogArr[i] := s, Log()
-    else
-        Log(s)
-}
-
-Log(str := "", Keyboard := false) {
-    global LogArr, RecordSleep
-    static LastTime := 0
-    t := A_TickCount
-    Delay := (LastTime ? t - LastTime : 0)
-    LastTime := t
-    if (str = "")
-        return
-    i := LogArr.Length
-    r := i = 0 ? "" : LogArr[i]
-    if (Keyboard && InStr(r, "Send") && Delay < 1000) {
-        LogArr[i] := SubStr(r, 1, -1) . str "`""
+        if (this.Recording || this.Playing)
+            return
+        this.UpdateSettings()
+        this.LogArr := []
+        this.oldid := ""
+        this.Log()
+        this.Recording := true
+        this.SetHotkey(1)
+        CoordMode("Mouse", "Screen")
+        MouseGetPos(&RelativeX, &RelativeY)
+        this.ShowTip("Recording")
         return
     }
 
-    if (Delay > 200)
-        LogArr.Push((RecordSleep == "false" ? ";" : "") "Sleep(" (Delay // 2) ")")
-    LogArr.Push(Keyboard ? "Send `"{Blind}" str "`"" : str)
+    static UpdateSettings() {
+        if (FileExist(this.LogFile)) {
+            this.LogFileObject := FileOpen(this.LogFile, "r")
+
+            Loop 3 {
+                this.LogFileObject.ReadLine()
+            }
+            this.MouseMode := RegExReplace(this.LogFileObject.ReadLine(), ".*=")
+
+            this.LogFileObject.ReadLine()
+            this.RecordSleep := RegExReplace(this.LogFileObject.ReadLine(), ".*=")
+
+            this.LogFileObject.Close()
+        } else {
+            this.MouseMode := "screen"
+            this.RecordSleep := "false"
+        }
+
+        if (this.MouseMode != "screen" && this.MouseMode != "window" && this.MouseMode != "relative")
+            this.MouseMode := "screen"
+
+        if (this.RecordSleep != "true" && this.RecordSleep != "false")
+            this.RecordSleep := "false"
+    }
+
+    static Stop() {
+        #SuspendExempt
+        if (this.Recording) {
+            if (this.LogArr.Length > 0) {
+                this.UpdateSettings()
+
+                s := ";Press " this.ActionKey " to play. Hold to record. Long hold to edit`n;#####SETTINGS#####`n;What is the preferred method of recording mouse coordinates (screen,window,relative)`n;MouseMode=" this.MouseMode "`n;Record sleep between input actions (true,false)`n;RecordSleep=" this.RecordSleep "`nLoop(1)`n{`n`nStartingValue := 0`ni := RegRead(`"HKEY_CURRENT_USER\SOFTWARE\`" A_ScriptName, `"i`", StartingValue)`nRegWrite(i + 1, `"REG_DWORD`", `"HKEY_CURRENT_USER\SOFTWARE\`" A_ScriptName, `"i`")`n`nSetKeyDelay(30)`nSendMode(`"Event`")`nSetTitleMatchMode(2)"
+
+                if (this.MouseMode == "window") {
+                    s .= "`n;CoordMode(`"Mouse`", `"Screen`")`nCoordMode(`"Mouse`", `"Window`")`n"
+                } else {
+                    s .= "`nCoordMode(`"Mouse`", `"Screen`")`n;CoordMode(`"Mouse`", `"Window`")`n"
+                }
+
+                For k, v in this.LogArr
+                    s .= "`n" v "`n"
+                s .= "`n`n}`nExitApp()`n`n" this.ActionKey "::ExitApp()`n"
+                s := RegExReplace(s, "\R", "`n")
+                if (FileExist(this.LogFile))
+                    FileDelete(this.LogFile)
+                FileAppend(s, this.LogFile, "UTF-16")
+                s := ""
+            }
+            this.Recording := 0
+            this.LogArr := []
+            this.SetHotkey(0)
+        }
+
+        this.ShowTip()
+        Suspend(false)
+        Pause(false)
+        isPaused := false
+        return
+    }
+
+    static PlayKeyAction() {
+        #SuspendExempt
+        if (this.Recording || this.Playing)
+            this.Stop()
+        ahk := A_AhkPath
+        if (!FileExist(ahk))
+        {
+            MsgBox("Can't Find " ahk " !", "Error", 4096)
+            Exit()
+        }
+
+        if (A_IsCompiled) {
+            Run(ahk " /script /restart `"" this.LogFile "`"")
+        } else {
+            Run(ahk " /restart `"" this.LogFile "`"")
+        }
+        return
+    }
+
+    static EditKeyAction() {
+        #SuspendExempt
+        this.Stop()
+        SplitPath(this.LogFile, &LogFileName)
+        try {
+            RegDelete("HKEY_CURRENT_USER\SOFTWARE\" LogFileName, "i")
+        } catch OSError as err {
+
+        }
+        Run("Notepad++.exe " . this.LogFile)
+        return
+    }
+
+    ;============ Functions =============
+
+    static SetHotkey(f := false) {
+        f := f ? "On" : "Off"
+        Loop 254
+        {
+            k := GetKeyName(vk := Format("vk{:X}", A_Index))
+            if (!(k ~= "^(?i:|Control|Alt|Shift)$"))
+                Hotkey("~*" vk, this.LogKey.Bind(this), f)
+        }
+        For i, k in StrSplit("NumpadEnter|Home|End|PgUp" . "|PgDn|Left|Right|Up|Down|Delete|Insert", "|")
+        {
+            sc := Format("sc{:03X}", GetKeySC(k))
+            if (!(k ~= "^(?i:|Control|Alt|Shift)$"))
+                Hotkey("~*" sc, this.LogKey.Bind(this), f)
+        }
+
+        if (f = "On") {
+            SetTimer(this.LogWindow.Bind(this))
+            this.LogWindow()
+        } else
+            SetTimer(this.LogWindow.Bind(this), 0)
+    }
+
+    static LogKey(HotkeyName) {
+        Critical()
+        k := GetKeyName(vksc := SubStr(A_ThisHotkey, 3))
+        k := StrReplace(k, "Control", "Ctrl"), r := SubStr(k, 2)
+        if (r ~= "^(?i:Alt|Ctrl|Shift|Win)$")
+            this.LogKey_Control(k)
+        else if (k ~= "^(?i:LButton|RButton|MButton)$")
+            this.LogKey_Mouse(k)
+        else {
+            if (k = "NumpadLeft" || k = "NumpadRight") && !GetKeyState(k, "P")
+                return
+            k := StrLen(k) > 1 ? "{" k "}" : k ~= "\w" ? k : "{" vksc "}"
+            this.Log(k, 1)
+        }
+    }
+
+    static LogKey_Control(key) {
+        k := InStr(key, "Win") ? key : SubStr(key, 2)
+        this.Log("{" k " Down}", 1)
+        Critical("Off")
+        ErrorLevel := !KeyWait(key)
+        Critical()
+        this.Log("{" k " Up}", 1)
+    }
+
+    static LogKey_Mouse(key) {
+        k := SubStr(key, 1, 1)
+
+        ;screen
+        CoordMode("Mouse", "Screen")
+        MouseGetPos(&X, &Y, &id)
+        this.Log((this.MouseMode == "window" || this.MouseMode == "relative" ? ";" : "") "MouseClick(`"" k "`", " X ", " Y ",,, `"D`") `;screen")
+
+        ;window
+        CoordMode("Mouse", "Window")
+        MouseGetPos(&WindowX, &WindowY, &id)
+        this.Log((this.MouseMode != "window" ? ";" : "") "MouseClick(`"" k "`", " WindowX ", " WindowY ",,, `"D`") `;window")
+
+        ;relative
+        CoordMode("Mouse", "Screen")
+        MouseGetPos(&tempRelativeX, &tempRelativeY, &id)
+        this.Log((this.MouseMode != "relative" ? ";" : "") "MouseClick(`"" k "`", " (tempRelativeX - this.RelativeX) ", " (tempRelativeY - this.RelativeY) ",,, `"D`", `"R`") `;relative")
+        this.RelativeX := tempRelativeX
+        this.RelativeY := tempRelativeY
+
+        ;get dif
+        CoordMode("Mouse", "Screen")
+        MouseGetPos(&X1, &Y1)
+        t1 := A_TickCount
+        Critical("Off")
+        ErrorLevel := !KeyWait(key)
+        Critical()
+        t2 := A_TickCount
+        if (t2 - t1 <= 200)
+            X2 := X1, Y2 := Y1
+        else
+            MouseGetPos(&X2, &Y2)
+
+        ;log screen
+        i := this.LogArr.Length - 2
+        r := this.LogArr[i]
+        if (InStr(r, ",,, `"D`")") && Abs(X2 - X1) + Abs(Y2 - Y1) < 5)
+            this.LogArr[i] := SubStr(r, 1, -16) ") `;screen", this.Log()
+        else
+            this.Log((this.MouseMode == "window" || this.MouseMode == "relative" ? ";" : "") "MouseClick(`"" k "`", " (X + X2 - X1) ", " (Y + Y2 - Y1) ",,, `"U`") `;screen")
+
+        ;log window
+        i := this.LogArr.Length - 1
+        r := this.LogArr[i]
+        if (InStr(r, ",,, `"D`")") && Abs(X2 - X1) + Abs(Y2 - Y1) < 5)
+            this.LogArr[i] := SubStr(r, 1, -16) ") `;window", this.Log()
+        else
+            this.Log((this.MouseMode != "window" ? ";" : "") "MouseClick(`"" k "`", " (WindowX + X2 - X1) ", " (WindowY + Y2 - Y1) ",,, `"U`") `;window")
+
+        ;log relative
+        i := this.LogArr.Length
+        r := this.LogArr[i]
+        if (InStr(r, ",,, `"D`", `"R`")") && Abs(X2 - X1) + Abs(Y2 - Y1) < 5)
+            this.LogArr[i] := SubStr(r, 1, -23) ",,,, `"R`") `;relative", this.Log()
+        else
+            this.Log((this.MouseMode != "relative" ? ";" : "") "MouseClick(`"" k "`", " (X2 - X1) ", " (Y2 - Y1) ",,, `"U`", `"R`") `;relative")
+    }
+
+    static LogWindow() {
+        this.id := WinExist("A")
+        this.title := WinGetTitle()
+        _class := WinGetClass()
+        if (this.title = "" && _class = "")
+            return
+        if (this.id = this.oldid && this.title = this.oldtitle)
+            return
+        this.oldid := this.id
+        this.oldtitle := this.title
+        this.title := SubStr(this.title, 1, 50)
+        this.title .= _class ? " ahk_class " _class : ""
+        this.title := RegExReplace(Trim(this.title), "[``%;]", "``$0")
+        static CommentString := ""
+        if (this.MouseMode != "window")
+            this.CommentString := ";"
+        s := this.CommentString . "tt := `"" this.title "`"`n" . this.CommentString . "WinWait(tt)" . "`n" . this.CommentString . "if (!WinActive(tt))`n" . this.CommentString . "  WinActivate(tt)"
+        i := this.LogArr.Length
+        r := i = 0 ? "" : this.LogArr[i]
+        if (InStr(r, "tt = ") = 1)
+            this.LogArr[i] := s, this.Log()
+        else
+            this.Log(s)
+    }
+
+    static Log(str := "", Keyboard := false) {
+        LastTime := 0
+        t := A_TickCount
+        Delay := (LastTime ? t - LastTime : 0)
+        LastTime := t
+        if (str = "")
+            return
+        i := this.LogArr.Length
+        r := i = 0 ? "" : this.LogArr[i]
+        if (Keyboard && InStr(r, "Send") && Delay < 1000) {
+            this.LogArr[i] := SubStr(r, 1, -1) . str "`""
+            return
+        }
+
+        if (Delay > 200)
+            this.LogArr.Push((this.RecordSleep == "false" ? ";" : "") "Sleep(" (Delay // 2) ")")
+        this.LogArr.Push(Keyboard ? "Send `"{Blind}" str "`"" : str)
+    }
+
 }
+MacroRecorder.__New()

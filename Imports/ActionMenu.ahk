@@ -48,19 +48,19 @@ WaitForChoice(name, options*) {
 ; === Menus ===
 Menu_Applications() {
     choice := WaitForChoice("[A]pplications",
-        ["v", "VPN Toggle"],
+        ["a", "Aware360 Toggle"],
+		["v", "VPN Toggle"],
 		["s", "[SAG] VMWare"],
-        ["0", "Outlook - VOCA/VIS-VII"] ;,
+        ;["V", "Outlook - VOCA/VIS-VII"] ;,
 		;["1", "Automated Reporter"]
         )
 
     switch choice, 0 {
         case "v":
-            #Include RemoteWork.ahk
             RemoteWork.toggleVPN()
-		 case "c":
+		 case "a":
             RemoteWork.toggleAware360()
-        case "o":
+        case "V":
             if (!ProcessExist("outlook.exe"))
                 {
                 Run("outlook.exe")

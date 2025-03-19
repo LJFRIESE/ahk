@@ -3,6 +3,7 @@
 #Include Imports/Tabber.ahk
 #Include Imports/NumpadMouse.ahk
 #Include Imports/ActionMenu.ahk
+#Include Imports/RemoteWork.ahk
 
 #Include Shortkeys.ahk
 #Include Macros.ahk
