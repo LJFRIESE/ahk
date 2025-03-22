@@ -1,8 +1,6 @@
 #SingleInstance
 
 class MacroRecorder {
-
-    ;--------------------------
     static LogFile := A_ScriptDir . "\MacroRecorder\macro1.ahk"
     static Recording := false
     static Playing := false

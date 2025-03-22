@@ -52,7 +52,7 @@ ScriptStatusGui(message, location := "corner", show := true)
     MonitorGetWorkArea(1, &left, &top, &right, &bottom)
         statusGui.Show("NoActivate AutoSize x" . (right - 300) . " y" . (bottom - 100))
     }
- 
+
     if (location = "center"){
         statusGui.Show("NoActivate AutoSize")
     }
@@ -64,14 +64,13 @@ ScriptStatusGui(message, location := "corner", show := true)
 			statusGui.Show("NoActivate x" . xpos . " y" . ypos . " w450")
 		}
     }
-	
+
     return statusGui
 }
 
 ; Help popup
-global windowWidth := A_ScreenWidth*.7
-global windowHight := A_ScreenHeight*.7
 class HotkeyGuide {
+    static windowWidth := A_ScreenWidth*.7
     static overlayGui := false
     static globalRegistry := Map()
 
@@ -103,7 +102,7 @@ class HotkeyGuide {
     WinSetTransparent(250, this.overlayGui)
 
     ; Calculate column widths and positions
-    columnWidth := windowWidth / 4
+    columnWidth := this.windowWidth / 4
 
     leftColumnX := "XM"
     rightColumnX := "XS" . columnWidth . " YS"
