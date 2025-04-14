@@ -501,8 +501,8 @@ class NumpadMouse {
     }
 }
 
-;Key activation support
 ; Should just take the
+HotkeyGuide.RegisterHotkey("Layer 2 - Misc", "F24 (w/ NumLock OFF)", "Toggle Numpad Mouse")
 ~F24:: {
     Hotkey("*NumpadIns", "Toggle")
     Hotkey("*NumpadClear", "Toggle")

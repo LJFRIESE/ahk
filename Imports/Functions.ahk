@@ -2,13 +2,34 @@
 #SingleInstance
 #Warn
 
+;Image search
+findImage(){
+	CoordMode "Pixel"  ; Interprets the coordinates below as relative to the screen rather than the active window's client area.
+	VirtualWidth := SysGet(78)
+	VirtualHeight := SysGet(79)
+	
+	try
+	{
+		if ImageSearch(&FoundX, &FoundY, 0, 0, VirtualWidth, VirtualHeight, "C:\Users\LUCASFRI\Microsoft\Pictures\Capture.png")
+			MsgBox "The icon was found at " FoundX "x" FoundY
+		else
+			MsgBox "Icon could not be found on the screen."
+	}
+	catch as exc
+		MsgBox "Could not conduct the search due to the following error:`n" exc.Message
+}
+	
+
 ; If application is already running, focus. Else, launch.
-runOrActivate(name){
+runOrActivate(name, winTitle := ""){
     if WinExist("ahk_exe " . name) {
         WinActivate("ahk_exe " . name)
     } else {
         Run(name)
     }
+	if winTitle != "" {
+		WinWaitActive(winTitle)
+	}
 }
 
 ; Wait until any key is pressed and return that key

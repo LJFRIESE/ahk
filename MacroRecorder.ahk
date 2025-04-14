@@ -1,5 +1,8 @@
 #SingleInstance
 
+MacroRecorder.__New()
+^Esc::MacroRecorder.Quit()
+
 class MacroRecorder {
     static LogFile := A_ScriptDir . "\MacroRecorder\macro1.ahk"
     static Recording := false
@@ -13,6 +16,10 @@ class MacroRecorder {
     static oldtitle := ""
     static RelativeX := 0
     static RelativeY := 0
+
+	static Quit() {
+		ExitApp()
+	}
 
     static __New() {
         Thread("NoTimers")
@@ -363,4 +370,3 @@ class MacroRecorder {
     }
 
 }
-MacroRecorder.__New()

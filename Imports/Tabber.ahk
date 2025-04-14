@@ -58,16 +58,18 @@ class Tabber {
 		this.windows := Map()
 		
         for hwnd in this.winClassList {
-            ; Skip if no title
-            title := WinGetTitle(hwnd)
-            ; Nil = irrelevant, the other two are temp windows related to the setting of the popup itself
-            if (!title || title = "Program Manager" || title = "PopupHost")
-                continue
-
             ; Skip AutoHotkey windows
             procName := WinGetProcessName(hwnd)
-            if (procName = "AutoHotkey64.exe")
+            if (procName = "AutoHotkey64.exe") {
                 continue
+			}
+			
+			; Skip if no title
+            ; Nil = irrelevant, the other two are temp windows related to the setting of the popup itself
+            title := WinGetTitle(hwnd)
+			if  (!title || title = "Program Manager" || title = "PopupHost" || title = "Zebar - config/glazewm" || title = "com.glzr.zebar-siw") {
+                continue
+			}				
 
             ; initialize a blank string instead of array
             if !this.windows.Has(procName)
@@ -81,6 +83,7 @@ class Tabber {
         for procName, hwnds in this.windows {
             this.windows[procName] := StrSplit(Trim(Sort(hwnds),'`n'), '`n')
         }
+		    
     }
 
     ; Cycle between classes
@@ -112,7 +115,6 @@ class Tabber {
         ; Switch to first window of next class
         nextClass := classes[nextIdx]
         WinActivate this.windows[nextClass][1]
-
         ;this.ShowInfo(nextClass)
     }
 
