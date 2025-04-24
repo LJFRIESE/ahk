@@ -1,10 +1,10 @@
 #Include Imports/Functions.ahk
 #Include Imports/ActionMenu.ahk
 #Include Imports/MouseMover.ahk
-;Unneeded if keeping komorebi
-;#Include Imports/Tabber.ahk
+
+#Include Imports/Tabber.ahk			;Unneeded with komorebi
 #Include Imports/komorebi.ahk
-#Include Imports/NumpadMouse.ahk
+;#Include Imports/NumpadMouse.ahk	;Broken atm...
 #Include Imports/RemoteWork.ahk
 
 #Include Imports/Shortkeys.ahk

@@ -19,15 +19,29 @@ findImage(){
 		MsgBox "Could not conduct the search due to the following error:`n" exc.Message
 }
 	
+ToUpper(){
+    clip_bak := ClipboardAll()                      ; Backup current clipboard
+    A_Clipboard := ''                               ; Clear clipboard
+    Send('^c')                                      ; Send copy
+    if ClipWait(1, 0)                               ; Wait up to 1 second for text to appear
+        A_Clipboard := StrUpper(A_Clipboard)        ;   If it appeared, transform to uppercase
+        ,Send('^v')                                 ;   And then paste
+    while !DllCall('GetOpenClipboardWindow', 'Ptr') ; While clipboard is still in use
+        if (A_Index < 20)                           ;   If less than 20 tries
+            Sleep(100)                              ;     Sleep another 100ms
+        else break                                  ;   Otherwise, break loop
+    A_Clipboard := clip_bak                         ; Restore original clipboard contents
+}
 
 ; If application is already running, focus. Else, launch.
 runOrActivate(name, winTitle := ""){
-    if WinExist("ahk_exe " . name) {
+	if WinExist("ahk_exe " . name) {
         WinActivate("ahk_exe " . name)
     } else {
         Run(name)
     }
-	if winTitle != "" {
+	
+    if winTitle != "" {
 		WinWaitActive(winTitle)
 	}
 }

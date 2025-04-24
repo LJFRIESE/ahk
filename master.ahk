@@ -6,6 +6,14 @@
 
 #Include Imports.ahk
 
+; Disable the damn Windows Hyper shortcuts
+~#^!Shift::  ; Win+Ctrl+Alt Shift
+~#^+Alt::    ; Win+Ctrl+Shift Alt
+~#!+LCtrl::  ; Win+Alt+Shift Ctrl Left
+~#!+RCtrl::  ; Win+Alt+Shift Ctrl Right
+~^!+LWin::   ; Ctrl+Alt+Shift Win Right
+~^!+RWin::Send("{Blind}{vkE8}")
+
 global A_Local := "C:\Users\" . A_UserName . "\AppData\Local"
 
 ; Keyboard Layer 2

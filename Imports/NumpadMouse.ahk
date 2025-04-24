@@ -1,27 +1,5 @@
-﻿; Using Keyboard Numpad as a Mouse (based on the v1 script by deguix)
-; https://www.autohotkey.com
-; This script makes mousing with your keyboard almost as easy
-; as using a real mouse (maybe even easier for some tasks).
-; It supports up to five mouse buttons and the turning of the
-; mouse wheel.  It also features customizable movement speed,
-; acceleration, and "axis inversion".
-
-/*
+﻿/*
 o------------------------------------------------------------o
-|Using Keyboard Numpad as a Mouse                            |
-(------------------------------------------------------------)
-|                     / A Script file for AutoHotkey         |
-|                    ----------------------------------------|
-|                                                            |
-|    This script is an example of use of AutoHotkey. It uses |
-| the remapping of numpad keys of a keyboard to transform it |
-| into a mouse. Some features are the acceleration which     |
-| enables you to increase the mouse movement when holding    |
-| a key for a long time, and the rotation which makes the    |
-| numpad mouse to "turn". I.e. NumpadDown as NumpadUp        |
-| and vice-versa. See the list of keys used below:           |
-|                                                            |
-|------------------------------------------------------------|
 | Keys                  | Description                        |
 |------------------------------------------------------------|
 | F24					| Activates numpad mouse mode.       |
@@ -34,10 +12,6 @@ o------------------------------------------------------------o
 |                       |                                    |
 |-----------------------|------------------------------------|
 | NumLock (toggled off) | Activates mouse movement mode.     |
-|-----------------------|------------------------------------|
-| NumpadEnd/Down/PgDn/  | Mouse movement.                    |
-| /Left/Right/Home/Up/  |                                    |
-| /PgUp                 |                                    |
 o------------------------------------------------------------o
 */
 
@@ -184,7 +158,7 @@ class NumpadMouse {
 
     ;Mouse movement support
 
-    static ButtonAcceleration(ThisHotkey) {
+    static ButtonAcceleration(ThisHotkey*) {
         if this.g_NumpadKeyPress1 != 0 {
             if !InStr(ThisHotkey, this.g_NumpadKeyPress1) {
                 this.g_NumpadKeyPress2 := StrReplace(ThisHotkey, "*")
@@ -197,7 +171,7 @@ class NumpadMouse {
         this.ButtonAccelerationStart()
     }
 
-    static ButtonJump(ThisHotkey) {
+    static ButtonJump(ThisHotkey*) {
         if this.g_NumpadKeyPress1 == 0 {
             this.g_NumpadKeyPress1 := StrReplace(ThisHotkey, "*")
         }

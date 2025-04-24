@@ -1,12 +1,12 @@
 class RemoteWork {
 	static amCheckedIn := false
 	static checkIn() {
-		Run("go run . -action Check-in", "C:\Users\LUCASFRI\git\go")
+		Run("go run . -action Check-in", "C:\Users\LUCASFRI\git\go", "hide")
 		this.amCheckedIn := true
 	}
 	
 	static checkOut() {
-		Run("go run . -action Check-out", "C:\Users\LUCASFRI\git\go")
+		Run("go run . -action Check-out", "C:\Users\LUCASFRI\git\go", "hide")
 		this.amCheckedIn := false
 	}
 	
@@ -16,6 +16,8 @@ class RemoteWork {
 		} else {
 			this.checkIn()
 		}
+		msg := ScriptStatusGui("Aware360 toggle complete", "corner")
+		SetTimer(() => msg.Destroy(), -2000)
 	}
 
 	static toggleVPN() {
