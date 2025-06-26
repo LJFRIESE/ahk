@@ -7,12 +7,12 @@
 #Include Imports.ahk
 
 ; Disable the damn Windows Hyper shortcuts
-~#^!Shift::  ; Win+Ctrl+Alt Shift
-~#^+Alt::    ; Win+Ctrl+Shift Alt
-~#!+LCtrl::  ; Win+Alt+Shift Ctrl Left
-~#!+RCtrl::  ; Win+Alt+Shift Ctrl Right
-~^!+LWin::   ; Ctrl+Alt+Shift Win Right
-~^!+RWin::Send("{Blind}{vkE8}")
+;~#^!Shift::  ; Win+Ctrl+Alt Shift
+;~#^+Alt::    ; Win+Ctrl+Shift Alt
+;~#!+LCtrl::  ; Win+Alt+Shift Ctrl Left
+;~#!+RCtrl::  ; Win+Alt+Shift Ctrl Right
+;~^!+LWin::   ; Ctrl+Alt+Shift Win Right
+;~^!+RWin::Send("{Blind}{vkE8}")
 
 global A_Local := "C:\Users\" . A_UserName . "\AppData\Local"
 
@@ -45,7 +45,7 @@ HotkeyGuide.RegisterHotkey("AHK Control", "␣Space", "Open Action Menu")
 
 ;HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣x", "Close window")
 HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣h", "Show keymap guide")
-;HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣Arrows", "Win+Arrows")
+;HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣Arrows", "Win+Arrows")  
 #HotIf GetKeyState("ScrollLock", "T")
 	; Everything is passed through with ~ and then eaten by KeyWaitAny to toggle off ScrollLock
 	~Space:: ActionMenu.Menu_Main()
@@ -53,6 +53,10 @@ HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣h", "Show keymap guide")
 	
 	;Unneeded if keeping komorebi
 	;~x:: WinClose("A")
+	
+	!n::{
+	Run("notepad++.exe")
+	}
 
 	; Window Control
 	;*~Left:: Send "{Blind}#{Left}"

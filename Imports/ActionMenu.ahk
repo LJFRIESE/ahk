@@ -72,15 +72,15 @@ class ActionMenu {
 
 	static Menu_Excel() {
 		options := [
-			["1", "Report Inventory"],
-			["2", "Ad Hoc Tracker"]
+			["i", "Report Inventory"],
+			["t", "Ad Hoc Tracker"]
 		]
 		choice := this.WaitForChoice("[E]xcel", options)
 
 		switch choice, 0 {
-			case "1":
+			case "i":
 				Run("M:\REPORTS\Report Inventory.xlsx")
-			case "2":
+			case "t":
 				Run("M:\REPORTS\AD HOC\Ad Hoc Request Tracker.xlsx")
 			default:
 				this.Menu_Main()

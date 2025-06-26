@@ -24,13 +24,14 @@ class RemoteWork {
 		SetTitleMatchMode 3
 		SetControlDelay -1
 		DetectHiddenWindows true
-		mode := ControlGetText("Button1", "Cisco AnyConnect Secure Mobility Client")
-		WinActivate("Cisco AnyConnect Secure Mobility Client")
+		vpn_name := "Cisco Secure Client"
+		mode := ControlGetText("Button1", vpn_name)
+		WinActivate(vpn_name)
 		; Connect or Disconnect?
-		ControlClick("Button1","Cisco AnyConnect Secure Mobility Client",,,,"NA")
+		ControlClick("Button1",vpn_name,,,,"NA")
 		if mode = "Connect" {
-			if WinWaitActive("Cisco AnyConnect",,10) {
-				ControlClick("Button1","Cisco AnyConnect",,,,"NA")
+			if WinWaitActive(vpn_name,"Accept",10) {
+				ControlClick("Button1",vpn_name,,,,"NA")
 				msg := ScriptStatusGui("VPN Connected - Check-in to Aware360?", "corner")
 			} else {
 				msg := ScriptStatusGui("VPN Connection timeout", "corner")
@@ -38,11 +39,12 @@ class RemoteWork {
 		}
 		if mode = "Disconnect" {
 			;Sleep 5000
-			WinWaitNotActive("Cisco AnyConnect Secure Mobility Client")
-			WinKill("Cisco AnyConnect Secure Mobility Client") 
+			WinWaitNotActive(vpn_name)
+			WinKill(vpn_name) 
 			msg := ScriptStatusGui("VPN Disconnected - Check-out from Aware360?", "corner")
 		}
 		SetTimer(() => msg.Destroy(), -2000)
 	}
 }
 
+ 
