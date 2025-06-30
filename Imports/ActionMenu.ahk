@@ -6,7 +6,8 @@ class ActionMenu {
 			["a", "Applications"],
 			["e", "Excel"],
 			[":-----  Quick Commands -----"," "],
-			["s", "Snipping Tool"],
+			["v", "VPN Toggle"],
+			["s", "[SAG] VMWare"],
 			["p", "Clipboard to Paint"],
 			[":----- AHK Control -----"," "],
 			["r", "Reload"],
@@ -17,9 +18,10 @@ class ActionMenu {
 		choice := this.WaitForChoice("Main menu", options )
 
 		switch choice, 0 {
+			case "v":
+				RemoteWork.toggleVPN()			
 			case "s":
-				runOrActivate("SnippingTool.exe", "Snipping Tool")
-				Send("^n")
+				runOrActivate("C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe")
 			case "p":
 				runOrActivate("mspaint.exe", "Untitled - Paint")
 				Send("^v")
@@ -38,18 +40,18 @@ class ActionMenu {
 	static Menu_Applications() {
 		options := [
 			["a", "Aware360 Toggle"],
-			["v", "VPN Toggle"],
-			["s", "[SAG] VMWare"],
+			["s", "Snipping Tool"],
 			;["V", "Outlook - VOCA/VIS-VII"] ,
 			;["1", "Automated Reporter"]
 		]
 		choice := this.WaitForChoice("[A]pplications", options)
 
 		switch choice, 0 {
-			case "v":
-				RemoteWork.toggleVPN()
-			 case "a":
+			case "a":
 				RemoteWork.toggleAware360()
+			case "s":
+				runOrActivate("SnippingTool.exe", "Snipping Tool")
+				Send("^n")
 			;case "V":
 			;	if (!ProcessExist("outlook.exe"))
 			;		{
@@ -60,9 +62,7 @@ class ActionMenu {
 			;
 			;	MailItem := outlookApp.CreateItem(0)
 			;	MailItem.Subject :=  "Weekly Report | VOCA/VIS-VII"    
-			;	MailItem.Display   
-			 case "s":
-				 runOrActivate("C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe")
+			;	MailItem.Display  
 			 ;case "1":
 			 ;    Run(A_ComSpec ' /c "C:\Users\LUCASFRI\git\SIBA_R_REPORTING\run.bat"')
 			default:
