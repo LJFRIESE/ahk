@@ -6,13 +6,7 @@
 
 #Include Imports.ahk
 
-; Disable the damn Windows Hyper shortcuts
-;~#^!Shift::  ; Win+Ctrl+Alt Shift
-;~#^+Alt::    ; Win+Ctrl+Shift Alt
-;~#!+LCtrl::  ; Win+Alt+Shift Ctrl Left
-;~#!+RCtrl::  ; Win+Alt+Shift Ctrl Right
-;~^!+LWin::   ; Ctrl+Alt+Shift Win Right
-;~^!+RWin::Send("{Blind}{vkE8}")
+DetectHiddenWindows true
 
 global A_Local := "C:\Users\" . A_UserName . "\AppData\Local"
 
@@ -23,7 +17,7 @@ HotkeyGuide.RegisterHotkey("Layer 2 - Numpad", "^1-9","21, F22, F13-19")
 HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "x","Copy whole line")
 HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "c","Cut whole line")
 HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "d","Delete whole line")
-HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "d","Delete whole line")
+HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "d","Delete whole li/ne")
 HotkeyGuide.RegisterHotkey("Layer 2 - Arrows", "^Left","Previous application")
 HotkeyGuide.RegisterHotkey("Layer 2 - Arrows", "^Right","Next Song")
 HotkeyGuide.RegisterHotkey("Layer 2 - Arrows", "^Up/Down","Volume Up/Down")
@@ -34,33 +28,57 @@ HotkeyGuide.RegisterHotkey("Layer 2 - Arrows", "^Up/Down","Volume Up/Down")
 
 
 HotkeyGuide.RegisterHotkey("AHK Control", "Esc&&Space", "␣ (Leader)")
-HotkeyGuide.RegisterHotkey("AHK Control", "␣Space", "Open Action Menu")
+HotkeyGuide.RegisterHotkey("AHK Control", "␣Space", "Open Action Menu") 
+
+HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣h", "Show keymap guide")
+
+
 ; Leader
-~Esc & Space:: {
-    SetScrollLockState 1
-    ; Waits for the user to press any key.
-    KeyWaitAny()
-     SetScrollLockState 0
+!+^Space:: {
+    ActionMenu.Menu_Main()
 }
 
-;HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣x", "Close window")
-HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣h", "Show keymap guide")
-;HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣Arrows", "Win+Arrows")  
-#HotIf GetKeyState("ScrollLock", "T")
-	; Everything is passed through with ~ and then eaten by KeyWaitAny to toggle off ScrollLock
-	~Space:: ActionMenu.Menu_Main()
-	~h:: HotkeyGuide.Show() ; Show help poppup
-	
-	;Unneeded if keeping komorebi
-	;~x:: WinClose("A")
-	
-	!n::{
-	Run("notepad++.exe")
-	}
 
-	; Window Control
-	;*~Left:: Send "{Blind}#{Left}"
-	;*~Up:: Send "{Blind}#{Up}"
-	;*~Down:: Send "{Blind}#{Down}"
-	;*~Right:: Send "{Blind}#{Right}"
-#HotIf
+!+^#n::{
+	runOrActivate("notepad++.exe")
+}
+
+!+^#e::{
+	name := "File Explorer"
+	if !WinExist(name){
+		run("explorer.exe")
+	} else {
+		winActivate(name) 
+	}
+	winWaitActive(name)
+}
+
+!+^#o::{
+	runOrActivate("OUTLOOK.EXE")
+}
+!+^#t::{
+	runOrActivate("ms-teams.exe")
+} 
+
+!+^#c::{ 
+	runOrActivate("chrome.exe")
+}
+
+!+^#s::{ 
+	exe := "SnippingTool.exe"
+	if !WinExist("ahk_exe " . exe){
+		run("SnippingTool.exe")
+	} else {
+		winActivate("ahk_exe " . exe) 
+	}
+	winWaitActive("ahk_exe " . exe)
+	Send("^n")
+}  
+ 
+!+^#h::{
+	runOrActivate("C:\Program Files\Omnissa\Omnissa Horizon Client\horizon-client.exe")
+}
+
+!+^#v::{
+	RemoteWork.toggleVPN()
+}

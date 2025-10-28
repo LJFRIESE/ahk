@@ -1,36 +1,25 @@
 class ActionMenu {
 
 	; === Initial Menu ===
-	static Menu_Main() {
+	static Menu_Main() { 
 		options := [
 			["a", "Applications"],
 			["e", "Excel"],
 			[":-----  Quick Commands -----"," "],
-			["v", "VPN Toggle"],
-			["s", "[SAG] VMWare"],
+			["k", "Komorebic"],
 			["p", "Clipboard to Paint"],
 			[":----- AHK Control -----"," "],
 			["r", "Reload"],
-			["w", "Window Spy"], 
-			["d", "AHK Docs"],
-			["o", "Other"]
+			["m", "More"]
 		]
 		choice := this.WaitForChoice("Main menu", options )
 
 		switch choice, 0 {
-			case "v":
-				RemoteWork.toggleVPN()			
-			case "s":
-				runOrActivate("C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe")
 			case "p":
 				runOrActivate("mspaint.exe", "Untitled - Paint")
 				Send("^v")
 			case "r":
 				ReloadAllScripts()
-			case "w":
-				Run('"' . A_Local . '\programs\AutoHotkey\WindowSpy.ahk"')
-			case "d":
-				Run('"' . A_Local . '\programs\AutoHotkey\v2\AutoHotkey.chm"')
 			default:
 				return
 			}
@@ -40,7 +29,6 @@ class ActionMenu {
 	static Menu_Applications() {
 		options := [
 			["a", "Aware360 Toggle"],
-			["s", "Snipping Tool"],
 			;["V", "Outlook - VOCA/VIS-VII"] ,
 			;["1", "Automated Reporter"]
 		]
@@ -49,9 +37,6 @@ class ActionMenu {
 		switch choice, 0 {
 			case "a":
 				RemoteWork.toggleAware360()
-			case "s":
-				runOrActivate("SnippingTool.exe", "Snipping Tool")
-				Send("^n")
 			;case "V":
 			;	if (!ProcessExist("outlook.exe"))
 			;		{
@@ -87,17 +72,43 @@ class ActionMenu {
 			}
 		}
 	
-	static Menu_Other() {
+	
+	static Menu_Komorebic() {
+		options := [
+			["r", "Reload"],
+			["k", "Kill"],	
+		]
+		choice := this.WaitForChoice("[K]omorebic", options)
+
+		switch choice, 0 {
+			case "r":
+				Komorebic("stop --bar")
+				Komorebic("start --bar")
+			case "k":
+				Komorebic("stop --bar")
+			default:
+				this.Menu_Main()
+			}
+		}
+	
+	static Menu_More() {
 		options := [
 			["1", "List AHK scripts"],
 			["2", "Kill AHK scripts"],
 			["3", "Monitor Info"],
 			["i", "Image Search"],
-			["m", "Macro"]
+			["m", "Macro"],
+			["w", "Window Spy"], 
+			["d", "AHK Docs"]
+			
 		]
 		choice := this.WaitForChoice("[O]ther AHK", options)
 
 		switch choice, 0 {
+			case "w":
+				Run('"' . A_Local . '\programs\AutoHotkey\WindowSpy.ahk"')
+			case "d":
+				Run('"' . A_Local . '\programs\AutoHotkey\v2\AutoHotkey.chm"')
 			case "m": 
 				Run("MacroRecorder.ahk")
 			case "1":
