@@ -27,8 +27,8 @@
 
 ; Manipulate windows
 #Tab::Komorebic("toggle-float")
-#s::Komorebic("toggle-workspace-layer") 
-#t::Komorebic("toggle-tiling") 
+#s::Komorebic("toggle-workspace-layer")
+#t::Komorebic("toggle-tiling")
 #f::Komorebic("toggle-monocle")
 #w::Komorebic("close")
 #y::Komorebic("toggle-lock")

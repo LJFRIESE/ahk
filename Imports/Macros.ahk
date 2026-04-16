@@ -51,11 +51,6 @@
     ;Send('^v')                                      ; Send paste      
 ;}
 
-; Convert text to UPPER
-;F18::ToUpper()
-
-
-
 ;----------------- Microsoft ---------------------
 ;System
 ; Lock

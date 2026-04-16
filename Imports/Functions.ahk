@@ -77,31 +77,6 @@ ShowInputBox(DefaultValue)
     }
 }
 
-ScreenIsLocked() {
-	if h := DllCall("User32\OpenInputDesktop","int",0,"int",0,"int",1,"ptr")
-		return false
-	DllCall("User32\CloseDesktop","ptr",h)
-	return true
-}
-
-ResetModifierKeys() {
-    modifiers := ["Shift", "Ctrl", "Alt", "LWin", "RWin"]
-    
-    for modifier in modifiers {
-        physicalState := GetKeyState(modifier, "P")
-        logicalState := GetKeyState(modifier)
-        
-        ; If logical state doesn't match physical state, send the key to sync them
-        if (physicalState != logicalState) {
-            if (physicalState) {
-                Send("{" modifier " down}")
-            } else {
-                Send("{" modifier " up}")
-            }
-        }
-    }
-}
-
 ;Image search
 findImage(){
 	CoordMode "Pixel"  ; Interprets the coordinates below as relative to the screen rather than the active window's client area.
@@ -119,31 +94,12 @@ findImage(){
 		MsgBox "Could not conduct the search due to the following error:`n" exc.Message
 }
 	
-ToUpper(){
-    clip_bak := ClipboardAll()                      ; Backup current clipboard
-    A_Clipboard := ''                               ; Clear clipboard
-    Send('^c')                                      ; Send copy
-    if ClipWait(1, 0)                               ; Wait up to 1 second for text to appear
-        A_Clipboard := StrUpper(A_Clipboard)        ;   If it appeared, transform to uppercase
-        ,Send('^v')                                 ;   And then paste
-    while !DllCall('GetOpenClipboardWindow', 'Ptr') ; While clipboard is still in use
-        if (A_Index < 20)                           ;   If less than 20 tries
-            Sleep(100)                              ;     Sleep another 100ms
-        else break                                  ;   Otherwise, break loop
-    A_Clipboard := clip_bak                         ; Restore original clipboard contents
-}
-
 Komorebic(cmd) {
      Run(format("komorebic.exe {}", cmd), , "Hide")
 }
 
-KomorebicWait(cmd) {
-	RunWait(format("komorebic.exe {}", cmd), , "Hide")
-}
-
-
-; If application is already running, focus. Else, launch.
-runOrActivate(name, winTitle := ""){
+; If application is already running, focus it. Otherwise, launch it.
+runOrActivate(name){
   	if ProcessExist(name) = 0 {
 		Run(name)
 		WinWaitActive("ahk_exe " . name)
@@ -162,23 +118,7 @@ runOrActivate(name, winTitle := ""){
 	}
 }
 
-; Wait until any key is pressed and return that key
-KeyWaitAny(Options:="")
-{
-    ih := InputHook(Options)
-    if !InStr(Options, "V"){
-		ih.VisibleNonText := false
-		}
-    ih.KeyOpt("{All}", "E")  ; End on any key
-    ih.KeyOpt("{LCtrl}{RCtrl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}", "-E") ; Don't end on modifier keys
-    ih.KeyOpt("{LButton}{RButton}{MButton}{XButton1}{XButton2}", "E") ; End on mouse buttons
-  
-	ih.Start() 
-    ih.Wait(2)
-    return ih.EndKey  ; Return the key name 
-}            
-
-; Create a sorted array
+; Join an array into a string.
 Join(arr, delimiter := ",") {
     result := ""
     for index, value in arr {
@@ -224,15 +164,17 @@ ScriptStatusGui(message, location := "corner", show := true)
 KillActiveScripts() {
     DetectHiddenWindows(true)
     AHKList := WinGetList("ahk_exe AutoHotkey.exe")
-    killedScripts := []
+    closedScripts := []
     for ID in AHKList {
-        if (A_ScriptHwnd != ID)
+        if (A_ScriptHwnd != ID) {
+            closedScripts.Push(WinGetTitle("ahk_id " ID))
             WinClose("ahk_id " ID)
+        }
     }
 
-    if killedScripts.Length > 0 {
+    if closedScripts.Length > 0 {
         message := "Terminated Scripts:`n"
-        message .= Join(killedScripts, "`n")
+        message .= Join(closedScripts, "`n")
     } else {
         message := "No other scripts found to terminate"
     }
@@ -255,7 +197,6 @@ ReloadAllScripts() {
 
     reloadedScripts := []
     failedScripts := []
-    currentScript := A_ScriptFullPath
 
     for hwnd in winList {
         try {

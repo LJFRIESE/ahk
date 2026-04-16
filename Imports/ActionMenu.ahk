@@ -3,7 +3,6 @@ class ActionMenu {
 	; === Initial Menu ===
 	static Menu_Main() { 
 		options := [
-			["a", "Applications"],
 			["r", "Reporting"],
 			["w", "Web"],
 			[":-----  Quick Commands -----"," "],
@@ -30,21 +29,6 @@ class ActionMenu {
 			}
 	}
 	
-	; === Sub-Menus ===
-	static Menu_Applications() {
-		options := [
-			["a", "Aware360 Toggle"]
-		]
-		choice := this.WaitForChoice("[A]pplications", options)
-
-		switch choice, 0 {
-			case "a":
-				RemoteWork.toggleAware360()
-			default:
-				this.Menu_Main()  
-		}
-	}
-
 	static Menu_Reporting() {
 		options := [
 			["a", "Ad Hoc"],
@@ -109,7 +93,6 @@ class ActionMenu {
 			["2", "Kill AHK scripts"],
 			["3", "Monitor Info"],
 			["i", "Image Search"],
-			["m", "Macro"],
 			["w", "Window Spy"], 
 			["d", "AHK Docs"]
 			
@@ -121,8 +104,6 @@ class ActionMenu {
 				Run('"' . A_Local . '\programs\AutoHotkey\WindowSpy.ahk"')
 			case "d":
 				Run('"' . A_Local . '\programs\AutoHotkey\v2\AutoHotkey.chm"')
-			case "m": 
-				Run("MacroRecorder.ahk")
 			case "3":
 				GetMonitorInfo()
 			case "2":

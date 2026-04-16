@@ -1,8 +1,7 @@
 #Include Imports/Functions.ahk
+#Include Imports/AppLaunchers.ahk
+#Include Imports/AppContextHotkeys.ahk
 #Include Imports/ActionMenu.ahk
-;#Include Imports/MouseMover.ahk
-
-;#Include Imports/Tabber.ahk			;Unneeded with komorebi
 #Include Imports/komorebi.ahk
 #Include Imports/RemoteWork.ahk
 
