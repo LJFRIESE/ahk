@@ -37,6 +37,8 @@
 ;	}
 ;}
 
+ 
+
 ;------------------ Text/Files -----------------
 
 ; Work around for copy+paste on the SAG
@@ -48,33 +50,13 @@
 	;A_Clipboard := FileRead(tmpFileName)			; Read from tmp file
     ;Send('^v')                                      ; Send paste      
 ;}
-;HotkeyGuide.RegisterHotkey("Layer 2 - Numpad", "^1","Read from tmp.txt")
 
 ; Convert text to UPPER
 ;F18::ToUpper()
-;HotkeyGuide.RegisterHotkey("Layer 2 - Numpad", "^4","Convert to UPPER")
 
-;----------------- Navigation ---------------------
-;Unneeded if keeping komorebi
-;+^!Up::Tabber.CycleClasses("prev")    
-;+^!Down::Tabber.CycleClasses("next")
-;+^!Left::Tabber.CycleWindows("prev")
-;+^!Right::Tabber.CycleWindows("next")
 
-;HotkeyGuide.RegisterHotkey("Navigation", "+^!+Up/Down", "Cycle between applications")
-;HotkeyGuide.RegisterHotkey("Navigation", "+^!+Left/Right", "Select application window")
 
 ;----------------- Microsoft ---------------------
-; Outlook
-; Insert Signature
-
-^+i::{
-	sleep 250
-	Send("{Alt}e2as{Enter}")
-}
-
-HotkeyGuide.RegisterHotkey("Outlook", "^+i","Insert Signature")
-
 ;System
 ; Lock
 
@@ -83,15 +65,23 @@ HotkeyGuide.RegisterHotkey("Outlook", "^+i","Insert Signature")
 	DllCall("LockWorkStation")
 }
 
-; Explorer
-!e::{
-	if WinExist("ahk_class CabinetWClass") {
-        WinActivate("ahk_class CabinetWClass")
-    } else {
-        Run("explorer.exe")
-    }
+; Outlook
+; Insert Signature
+HotIfWinActive "ahk_exe OUTLOOK.EXE"
+^+i::{
+	sleep 250
+	Send("{Alt}e2as{Enter}")
 }
+HotIfWinActive
 
+
+; Excel 
+; Redo
+HotIfWinActive "ahk_exe EXCEL.EXE"
+^+z::^y
+HotIfWinActive
+
+hotif
 
 ;-------------------- Misc --------------------
 
@@ -99,7 +89,6 @@ HotkeyGuide.RegisterHotkey("Outlook", "^+i","Insert Signature")
 ~^!+#F19::{
     WinSetAlwaysOnTop -1, "A"
 }
-HotkeyGuide.RegisterHotkey("Layer 2 - Numpad", "^!+#9","Set window Always on Top")
 
 
 ;------------------ Mouse ----------------------

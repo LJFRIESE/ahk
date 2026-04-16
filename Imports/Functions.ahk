@@ -5,6 +5,78 @@
 InstallKeybdHook
 InstallMouseHook
 
+#h::  ; Win+H hotkey
+{
+    ; Get the text currently selected. The clipboard is used instead of
+    ; EditGetSelectedText because it works in a greater variety of editors
+    ; (namely word processors). Save the current clipboard contents to be
+    ; restored later. Although this handles only plain text, it seems better
+    ; than nothing:
+    ClipboardOld := A_Clipboard
+    A_Clipboard := "" ; Must start off blank for detection to work.
+    Send "^c"
+    if !ClipWait(1)  ; ClipWait timed out.
+    {
+        A_Clipboard := ClipboardOld ; Restore previous contents of clipboard before returning.
+        return
+    }
+    ; Replace CRLF and/or LF with `n for use in a "send-raw" hotstring:
+    ; The same is done for any other characters that might otherwise
+    ; be a problem in raw mode:
+    ClipContent := StrReplace(A_Clipboard, "``", "````")  ; Do this replacement first to avoid interfering with the others below.
+    ClipContent := StrReplace(ClipContent, "`r`n", "``n")
+    ClipContent := StrReplace(ClipContent, "`n", "``n")
+    ClipContent := StrReplace(ClipContent, "`t", "``t")
+    ClipContent := StrReplace(ClipContent, "`;", "```;")
+    A_Clipboard := ClipboardOld  ; Restore previous contents of clipboard.
+    ShowInputBox(":T:::" ClipContent)
+}
+
+ShowInputBox(DefaultValue)
+{
+    ; This will move the input box's caret to a more friendly position:
+    SetTimer MoveCaret, 10
+    ; Show the input box, providing the default hotstring:
+    IB := InputBox("
+    (
+    Type your abbreviation at the indicated insertion point. You can also edit the replacement text if you wish.
+
+    Example entry: :T:btw::by the way
+    )", "New Hotstring",, DefaultValue)
+    if IB.Result = "Cancel"  ; The user pressed Cancel.
+        return
+
+    if RegExMatch(IB.Value, "(?P<Label>:.*?:(?P<Abbreviation>.*?))::(?P<Replacement>.*)", &Entered)
+    {
+        if !Entered.Abbreviation
+            MsgText := "You didn't provide an abbreviation"
+        else if !Entered.Replacement
+            MsgText := "You didn't provide a replacement"
+        else
+        {
+            Hotstring Entered.Label, Entered.Replacement  ; Enable the hotstring now.
+            FileAppend "`n" IB.Value, A_ScriptFullPath  ; Save the hotstring for later use.
+        }
+    }
+    else
+        MsgText := "The hotstring appears to be improperly formatted"
+
+    if IsSet(MsgText)
+    {
+        Result := MsgBox(MsgText ". Would you like to try again?",, 4)
+        if Result = "Yes"
+            ShowInputBox(DefaultValue)
+    }
+    
+    MoveCaret()
+    {
+        WinWait "New Hotstring"
+        ; Otherwise, move the input box's insertion point to where the user will type the abbreviation.
+        Send "{Home}{Right 3}"
+        SetTimer , 0
+    }
+}
+
 ScreenIsLocked() {
 	if h := DllCall("User32\OpenInputDesktop","int",0,"int",0,"int",1,"ptr")
 		return false
@@ -62,11 +134,11 @@ ToUpper(){
 }
 
 Komorebic(cmd) {
-    RunWait(format("komorebic.exe {}", cmd), , "Hide")
+     Run(format("komorebic.exe {}", cmd), , "Hide")
 }
 
-KomorebicNoWait(cmd) {
-    Run(format("komorebic.exe {}", cmd), , "Hide")
+KomorebicWait(cmd) {
+	RunWait(format("komorebic.exe {}", cmd), , "Hide")
 }
 
 
@@ -75,7 +147,12 @@ runOrActivate(name, winTitle := ""){
   	if ProcessExist(name) = 0 {
 		Run(name)
 		WinWaitActive("ahk_exe " . name)
-	} 
+	} else {
+		if WinExist("Omnissa Horizon - Google Chrome") {
+			Run(name)
+			WinWaitActive("A")	
+		}
+	}
 	
 	if ProcessExist("komorebi.exe") > 0 {
 		Komorebic("eager-focus " . name) ; Going twice gets hidden floats in focus. 
@@ -102,16 +179,13 @@ KeyWaitAny(Options:="")
 }            
 
 ; Create a sorted array
-Join(arr, sort := false, delimiter := ",") {
+Join(arr, delimiter := ",") {
     result := ""
     for index, value in arr {
         if index > 1
             result .= delimiter
         result .= value
     }
-    if (sort) {
-        result := Sort(result, "D" . delimiter)
-        }
     return result
 }
 
@@ -145,113 +219,7 @@ ScriptStatusGui(message, location := "corner", show := true)
     return statusGui
 }
 
-; Help popup
-class HotkeyGuide {
-    static windowWidth := A_ScreenWidth*.7
-    static overlayGui := false
-    static globalRegistry := Map()
-
-    static RegisterHotkey(script, hotkeyStr, description) {
-        if !this.globalRegistry.Has(script)
-            this.globalRegistry[script] := Map()
-        this.globalRegistry[script][hotkeyStr] := description
-    }
-
-    static Show() {
-        if this.overlayGui {
-            this.overlayGui.Destroy()
-            this.overlayGui := false
-        }
-        this.CreateOverlay()
-        this.overlayGui.Show("AutoSize")
-    }
-
-    static Hide() {
-        if this.overlayGui
-            this.overlayGui.Hide()
-    }
-
-    static CreateOverlay() {
-    this.overlayGui := Gui("+AlwaysOnTop -Caption +E0x20 +Owner")
-    this.overlayGui.BackColor := "222222"
-    this.overlayGui.MarginY := 10
-    this.overlayGui.OnEvent('Escape', (*) => this.overlayGui.Hide())
-    WinSetTransparent(250, this.overlayGui)
-
-    ; Calculate column widths and positions
-    columnWidth := this.windowWidth / 4
-
-    leftColumnX := "XM"
-    rightColumnX := "XS" . columnWidth . " YS"
-
-    ; Track which column we're in (0 = left, 1 = right)
-    currentColumn := 0
-
-    for scriptName, hotkeys in this.globalRegistry {
-        ; Determine X position based on current column
-        xPos := currentColumn = 0 ? leftColumnX : rightColumnX
-
-        ; Add section title
-        this.overlayGui.SetFont("s12 w600")
-        this.overlayGui.Add("Text", "Section " . xPos . " cFFFFFF", scriptName)
-
-        ; Add hotkeys and descriptions
-        for key, desc in hotkeys {
-            this.overlayGui.SetFont("s10 w600")
-            ; Key
-            this.overlayGui.Add("Text", "XS cCCCCCC", this.FormatHotkeyString(key))
-            ; Description
-            this.overlayGui.SetFont("s10 w400")
-            this.overlayGui.Add("Text", "YP cCCCCCC", desc)
-        }
-
-        ; Toggle column for next section
-        currentColumn := currentColumn = 0 ? 1 : 0
-    }
-
-    this.overlayGui.Add("Text", "YP+50 Center cFFFFFF", "Press Escape to Close")
-}
-
-    static FormatHotkeyString(hotkeyStr) {
-		formatted := StrReplace(hotkeyStr, "^!+#", "Hyper-")
-		formatted := StrReplace(formatted, "^!+", "Meh-")
-        formatted := StrReplace(formatted, "<", "L") ;Has to happen after Meh/Hyper
-        formatted := StrReplace(formatted, ">", "R") ;Has to happen after Meh/Hyper
-        formatted := StrReplace(formatted, "+", "Shift+") ;Has to happen after Meh/Hyper
-        formatted := StrReplace(formatted, "^", "Ctrl+")
-        formatted := StrReplace(formatted, "!", "Alt+")
-        formatted := StrReplace(formatted, "#", "Win+")
-        formatted := StrReplace(formatted, "-", "+") ; Clean up the Meh/Hyper
-        return formatted
-    }
-}
-
 ; AHK Control
-
-; Show active scripts
-ListActiveScripts() {
-    DetectHiddenWindows(true)
-    winList := WinGetList("ahk_class AutoHotkey")
-    activeScripts := []
-
-    for hwnd in winList {
-        windowTitle := WinGetTitle("ahk_id " hwnd)
-        if InStr(windowTitle, " - AutoHotkey") {
-            scriptPath := SubStr(windowTitle, 1, InStr(windowTitle, " - AutoHotkey") - 1)
-            SplitPath(scriptPath, &scriptName)
-            activeScripts.Push(scriptName)
-        }
-    }
-
-    if activeScripts.Length > 0 {
-        message := "Active Scripts:`n"
-        message .= Join(activeScripts, "`n")
-    } else {
-        message := "No active scripts found"
-    }
-
-    ScriptStatusGui(message)
-}
 
 KillActiveScripts() {
     DetectHiddenWindows(true)

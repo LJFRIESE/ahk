@@ -10,61 +10,46 @@ DetectHiddenWindows true
 
 global A_Local := "C:\Users\" . A_UserName . "\AppData\Local"
 
-; Keyboard Layer 2
-HotkeyGuide.RegisterHotkey("AHK Control", "~","Layer Switch (Hold)")
-
-HotkeyGuide.RegisterHotkey("Layer 2 - Numpad", "^1-9","21, F22, F13-19")
-HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "x","Copy whole line")
-HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "c","Cut whole line")
-HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "d","Delete whole line")
-HotkeyGuide.RegisterHotkey("Layer 2 - Alpha", "d","Delete whole li/ne")
-HotkeyGuide.RegisterHotkey("Layer 2 - Arrows", "^Left","Previous application")
-HotkeyGuide.RegisterHotkey("Layer 2 - Arrows", "^Right","Next Song")
-HotkeyGuide.RegisterHotkey("Layer 2 - Arrows", "^Up/Down","Volume Up/Down")
-
 ; Macro record
 ;HotkeyGuide.RegisterHotkey("Macros", "F1{short hold}", "Record")
 ;HotkeyGuide.RegisterHotkey("Macros", "F1{long hold}", "Inspect recording")
-
-
-HotkeyGuide.RegisterHotkey("AHK Control", "Esc&&Space", "␣ (Leader)")
-HotkeyGuide.RegisterHotkey("AHK Control", "␣Space", "Open Action Menu") 
-
-HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣h", "Show keymap guide")
-
 
 ; Leader
 !+^Space:: {
     ActionMenu.Menu_Main()
 }
 
-
-!+^#n::{
++#n::{
 	runOrActivate("notepad++.exe")
 }
 
-!+^#e::{
-	name := "File Explorer"
-	if !WinExist(name){
-		run("explorer.exe")
+
++#.::{
+	explorerTitle := "ahk_exe explorer.exe"
+	if WinExist(explorerTitle) {
+		WinActivate(explorerTitle)
 	} else {
-		winActivate(name) 
+		Run("explorer.exe")
 	}
-	winWaitActive(name)
+	WinWaitActive(explorerTitle)
 }
 
-!+^#o::{
++#o::{
 	runOrActivate("OUTLOOK.EXE")
 }
-!+^#t::{
++#t::{
 	runOrActivate("ms-teams.exe")
 } 
 
-!+^#c::{ 
++#Enter::{
+	runOrActivate("wt.exe")
+} 
+
++#b::{ 
 	runOrActivate("chrome.exe")
 }
 
-!+^#s::{ 
++#s::{ 
 	exe := "SnippingTool.exe"
 	if !WinExist("ahk_exe " . exe){
 		run("SnippingTool.exe")
@@ -75,10 +60,33 @@ HotkeyGuide.RegisterHotkey("Top layer - Misc", "␣h", "Show keymap guide")
 	Send("^n")
 }  
  
-!+^#h::{
++#h::{
 	runOrActivate("C:\Program Files\Omnissa\Omnissa Horizon Client\horizon-client.exe")
 }
 
-!+^#v::{
++#v::{
 	RemoteWork.toggleVPN()
 }
+
+#Requires AutoHotkey v2.0
+
+; Disable certain shortcuts when Chrome tab title contains "Omnissa Horizon"
+#HotIf WinActive("ahk_exe chrome.exe") && InStr(WinGetTitle("A"), "Omnissa Horizon")
+^w::
+{
+        ; Pass Ctrl+W into the VM by releasing Ctrl and pressing w directly
+        ; This prevents Chrome from intercepting it
+        Send "{Ctrl up}w{Ctrl down}" 
+}
+^n::Send "{Ctrl up}n{Ctrl down}"
+^t::Send "{Ctrl up}t{Ctrl down}"
+
+
+#HotIf
+
+; Excel hotkey: Ctrl+Shift+S → Save As
+#HotIf WinActive("ahk_exe excel.exe")
+^+s::Send("!fa")
+#HotIf
+
+  

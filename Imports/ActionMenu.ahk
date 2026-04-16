@@ -4,21 +4,26 @@ class ActionMenu {
 	static Menu_Main() { 
 		options := [
 			["a", "Applications"],
-			["e", "Excel"],
+			["r", "Reporting"],
+			["w", "Web"],
 			[":-----  Quick Commands -----"," "],
 			["k", "Komorebic"],
-			["p", "Clipboard to Paint"],
+			["p", "Pin tab"],
 			[":----- AHK Control -----"," "],
-			["r", "Reload"],
+			["z", "Reload"],
 			["m", "More"]
 		]
 		choice := this.WaitForChoice("Main menu", options )
 
 		switch choice, 0 {
 			case "p":
-				runOrActivate("mspaint.exe", "Untitled - Paint")
-				Send("^v")
-			case "r":
+			if WinActive("ahk_exe chrome.exe")
+			{
+				; Send the menu key (context menu key) while focused on the tab, hit p for pin. u is unpin
+				Send "{F6}{F6}"
+				Send "{AppsKey}{p}"
+			}		
+			case "z":
 				ReloadAllScripts()
 			default:
 				return
@@ -28,51 +33,59 @@ class ActionMenu {
 	; === Sub-Menus ===
 	static Menu_Applications() {
 		options := [
-			["a", "Aware360 Toggle"],
-			;["V", "Outlook - VOCA/VIS-VII"] ,
-			;["1", "Automated Reporter"]
+			["a", "Aware360 Toggle"]
 		]
 		choice := this.WaitForChoice("[A]pplications", options)
 
 		switch choice, 0 {
 			case "a":
 				RemoteWork.toggleAware360()
-			;case "V":
-			;	if (!ProcessExist("outlook.exe"))
-			;		{
-			;		Run("outlook.exe")
-			;		; Sleep 15000  ;can change this is want
-			;		}
-			;	outlookApp := ComObjActive("Outlook.Application")
-			;
-			;	MailItem := outlookApp.CreateItem(0)
-			;	MailItem.Subject :=  "Weekly Report | VOCA/VIS-VII"    
-			;	MailItem.Display  
-			 ;case "1":
-			 ;    Run(A_ComSpec ' /c "C:\Users\LUCASFRI\git\SIBA_R_REPORTING\run.bat"')
 			default:
 				this.Menu_Main()  
 		}
 	}
 
-	static Menu_Excel() {
+	static Menu_Reporting() {
 		options := [
-			["i", "Report Inventory"],
-			["t", "Ad Hoc Tracker"]
+			["a", "Ad Hoc"],
+			["r", "Reports"],
+			["d", "Ad Hoc Directory"]
 		]
-		choice := this.WaitForChoice("[E]xcel", options)
+		choice := this.WaitForChoice("[S]cripts", options)
 
 		switch choice, 0 {
-			case "i":
-				Run("M:\REPORTS\Report Inventory.xlsx")
-			case "t":
-				Run("M:\REPORTS\AD HOC\Ad Hoc Request Tracker.xlsx")
+			case "a":
+				Run("python C:\Users\LUCASFRI\copilot\ad-hocs\create_adhoc_folder.py")
+			case "r":
+				Run("M:\REPORTS\ONGOING")
+			case "d":
+				Run("M:\REPORTS\AD HOC")
 			default:
 				this.Menu_Main()
 			}
 		}
 	
 	
+	static Menu_Web() {
+		options := [
+			["c", "Confluence"],
+			["p", "Power BI"],
+			["t", "Tidal"]
+		]
+		choice := this.WaitForChoice("[W]eb", options)
+
+		switch choice, 0 {
+			case "c":
+				Run("https://wiki.justice.gov.bc.ca/wiki/spaces/BCPSSR/overview")
+			case "p":
+				Run("https://app.powerbi.com/groups/b168f00d-89db-489c-b5d0-e902b88fc65a/list?tenant=6fdb5200-3d0d-4a8a-b036-d3685e359adc&experience=power-bi")
+			case "t":
+				Run("https://tidal.com/")
+			default:
+				this.Menu_Main()
+		}
+	}
+
 	static Menu_Komorebic() {
 		options := [
 			["r", "Reload"],
@@ -93,7 +106,6 @@ class ActionMenu {
 	
 	static Menu_More() {
 		options := [
-			["1", "List AHK scripts"],
 			["2", "Kill AHK scripts"],
 			["3", "Monitor Info"],
 			["i", "Image Search"],
@@ -111,8 +123,6 @@ class ActionMenu {
 				Run('"' . A_Local . '\programs\AutoHotkey\v2\AutoHotkey.chm"')
 			case "m": 
 				Run("MacroRecorder.ahk")
-			case "1":
-				ListActiveScripts()
 			case "3":
 				GetMonitorInfo()
 			case "2":
