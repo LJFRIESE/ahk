@@ -12,6 +12,7 @@ InstallKeybdHook
 InstallMouseHook
 
 #Include Imports/Functions.ahk
+#Include Imports/InputGuard.ahk
 #Include Imports/VimMode.ahk
 #Include Imports/AppLaunchers.ahk
 #Include Imports/ActionMenu.ahk
@@ -23,6 +24,9 @@ InstallMouseHook
 
 
 global A_Local := "C:\Users\" . A_UserName . "\AppData\Local"
+
+; Release modifier keys that a hotkey or Send leaves logically down.
+InputGuard.Start()
 
 ; Leader
 !+^Space:: {

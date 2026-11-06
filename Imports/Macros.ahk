@@ -55,14 +55,22 @@
 
 ;----------------- Omnissa ---------------------
 
-; Disable certain shortcuts when Chrome tab title contains "Omnissa Horizon"
-#HotIf WinActive("ahk_exe chrome.exe") && InStr(gLastWinTitle, "Omnissa Horizon")
-	^w::{
-		; Pass Ctrl+W into the VM by releasing Ctrl and pressing w directly.
-		Send "{Ctrl up}w{Ctrl down}"
-	}
+; True when the active window is a Chrome window whose last tracked title
+; belongs to the Horizon VM. #HotIf expressions are assume-local, so the
+; global title has to be read through a function.
+IsOmnissaWindow() {
+	global gLastWinTitle
+	return WinActive("ahk_exe chrome.exe") && InStr(gLastWinTitle, "Omnissa Horizon")
+}
 
-	^n::Send "{Ctrl up}n{Ctrl down}"
-	^t::Send "{Ctrl up}t{Ctrl down}"
+; Disable certain shortcuts when Chrome tab title contains "Omnissa Horizon"
+#HotIf IsOmnissaWindow()
+	; Pass Ctrl+W/N/T into the VM by releasing Ctrl and pressing the key
+	; directly. {Blind} prevents Send from pressing Ctrl back down at the end
+	; of the send; doing that used to leave a synthetic Ctrl-down behind when
+	; Ctrl was released during the hotkey, which is the stuck-Ctrl bug.
+	^w::Send "{Blind}{Ctrl up}w"
+	^n::Send "{Blind}{Ctrl up}n"
+	^t::Send "{Blind}{Ctrl up}t"
 #HotIf
 
