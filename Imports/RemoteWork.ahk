@@ -9,11 +9,16 @@ class RemoteWork {
 
 		; Connect or Disconnect? 
 		if RemoteWork.vpnConnected = 0 {
-			sleep 500
-			ControlClick("Button1",vpn_name,,,,"NA")
-			if WinWaitActive(vpn_name,"Accept",10) {
+			if WinWaitActive(vpn_name,,3){
+				;sleep 500
 				ControlClick("Button1",vpn_name,,,,"NA")
-				RemoteWork.vpnConnected := 1
+				if WinWaitActive(vpn_name,"Accept",10) {
+					ControlClick("Button1",vpn_name,,,,"NA")
+					RemoteWork.vpnConnected := 1
+				}
+			} else {
+				ToolTip( "VPN window not found")
+				SetTimer () => ToolTip(), -3000
 			}
 		} else {
 			Run("C://Program Files (x86)/Cisco/Cisco Secure Client/vpncli.exe disconnect", , "Hide")

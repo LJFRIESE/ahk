@@ -6,22 +6,23 @@ class ActionMenu {
 			["r", "Reporting"],
 			["w", "Web"],
 			[":-----  Quick Commands -----"," "],
-			["k", "Komorebic"],
-			["p", "Pin tab"],
+			;["k", "Komorebic"],
+			["f", "Find"],
+			["t", "Teams fix"],
 			[":----- AHK Control -----"," "],
+			["v", "Vim"],
 			["z", "Reload"],
 			["m", "More"]
 		]
 		choice := this.WaitForChoice("Main menu", options )
 
 		switch choice, 0 {
-			case "p":
-			if WinActive("ahk_exe chrome.exe")
-			{
-				; Send the menu key (context menu key) while focused on the tab, hit p for pin. u is unpin
-				Send "{F6}{F6}"
-				Send "{AppsKey}{p}"
-			}		
+			case "f": 
+				RunMSYS2("ff")
+			case "t":
+				teamsRestore()
+			case "v":
+				VimMode.Toggle()
 			case "z":
 				ReloadAllScripts()
 			default:
@@ -31,17 +32,46 @@ class ActionMenu {
 	
 	static Menu_Reporting() {
 		options := [
-			["a", "Ad Hoc"],
+			["a", "AdHoc"],
+			["o", "Ongoing"],
 			["r", "Reports"],
-			["d", "Ad Hoc Directory"]
 		]
-		choice := this.WaitForChoice("[S]cripts", options)
+		choice := this.WaitForChoice("[R]eporting", options)
 
 		switch choice, 0 {
-			case "a":
-				Run("python C:\Users\LUCASFRI\copilot\ad-hocs\create_adhoc_folder.py")
-			case "r":
+			case "o":
 				Run("M:\REPORTS\ONGOING")
+			case "r":
+				Run("M:\REPORTS")
+			default:
+				return
+			}
+		}
+		
+	static Menu_Ongoing() {
+		options := [
+			["d", "Ongoing Reports Directory"]
+		]
+		choice := this.WaitForChoice("[O]ngoing Reports", options)
+
+		switch choice, 0 {
+			case "d":
+				Run("M:\REPORTS\ONGOING")
+			default:
+				this.Menu_Main()
+			}
+		}
+		
+	static Menu_AdHoc() {
+		options := [
+			["n", "New Ad Hoc"],
+			["d", "Ad Hoc Directory"]
+		]
+		choice := this.WaitForChoice("[A]d hoc Reports", options)
+
+		switch choice, 0 {
+			case "n":
+				Run("python C:\Users\LUCASFRI\agent_projects\ad-hocs\create_adhoc_folder.py")
 			case "d":
 				Run("M:\REPORTS\AD HOC")
 			default:
@@ -53,8 +83,10 @@ class ActionMenu {
 	static Menu_Web() {
 		options := [
 			["c", "Confluence"],
-			["p", "Power BI"],
-			["t", "Tidal"]
+			["b", "Power BI"],
+			["t", "Tidal"],
+			["p", "Pin tab"],
+
 		]
 		choice := this.WaitForChoice("[W]eb", options)
 
@@ -62,40 +94,34 @@ class ActionMenu {
 			case "c":
 				Run("https://wiki.justice.gov.bc.ca/wiki/spaces/BCPSSR/overview")
 			case "p":
+				if WinActive("ahk_exe chrome.exe")
+				{
+					; Send the menu key (context menu key) while focused on the tab, hit p for pin. u is unpin
+					Send "{F6}{F6}"
+					Send "{AppsKey}{p}"
+				}
+			case "b":
 				Run("https://app.powerbi.com/groups/b168f00d-89db-489c-b5d0-e902b88fc65a/list?tenant=6fdb5200-3d0d-4a8a-b036-d3685e359adc&experience=power-bi")
 			case "t":
 				Run("https://tidal.com/")
+				Sleep(500)
+				if WinActive("ahk_exe chrome.exe") {
+					; Send the menu key (context menu key) while focused on the tab, hit p for pin. u is unpin
+					Send "{F6}{F6}"
+					Send "{AppsKey}{p}"
+				}
 			default:
 				this.Menu_Main()
 		}
 	}
-
-	static Menu_Komorebic() {
-		options := [
-			["r", "Reload"],
-			["k", "Kill"],	
-		]
-		choice := this.WaitForChoice("[K]omorebic", options)
-
-		switch choice, 0 {
-			case "r":
-				Komorebic("stop --bar")
-				Komorebic("start --bar")
-			case "k":
-				Komorebic("stop --bar")
-			default:
-				this.Menu_Main()
-			}
-		}
 	
 	static Menu_More() {
 		options := [
 			["2", "Kill AHK scripts"],
 			["3", "Monitor Info"],
-			["i", "Image Search"],
 			["w", "Window Spy"], 
-			["d", "AHK Docs"]
-			
+			["d", "AHK Docs"],
+			["r", "Redraw Window"]
 		]
 		choice := this.WaitForChoice("[O]ther AHK", options)
 
@@ -108,8 +134,8 @@ class ActionMenu {
 				GetMonitorInfo()
 			case "2":
 				 KillActiveScripts()
-			case "i":
-				findImage()
+			case "r":
+				WinRedraw("A")
 			default:
 				this.Menu_Main()
 			}
@@ -117,7 +143,16 @@ class ActionMenu {
 	
 	; === Choice Selection ===
 	static WaitForChoice(name, options := []) {
-		; === Building the Tooltip string, EndKeys parameter, and choices dictionary (for Menu functions) ===
+		global gActionMenuDepth
+		gActionMenuDepth += 1
+		try {
+			return this.WaitForChoiceInner(name, options)
+		} finally {
+			gActionMenuDepth -= 1
+		}
+	}
+
+	static WaitForChoiceInner(name, options := []) {
 		tooltipStr := name . "`n"
 		menuFunctionsDict := Map()
 		endKeys := ""
@@ -164,3 +199,29 @@ class ActionMenu {
 		}
 	}
 }	
+
+
+
+;	static Menu_Komorebic() {
+;		options := [
+;			["r", "Reload"],
+;			["k", "Kill"],	
+;			["s", "Start"],
+;			["t", "Tile"]
+;		]
+;		choice := this.WaitForChoice("[K]omorebic", options)
+;
+;		switch choice, 0 {
+;			case "r":
+;				Komorebic("stop --bar")
+;				Komorebic("start --bar")
+;			case "k":
+;				Komorebic("stop --bar")
+;			case "s":
+;				Komorebic("start --bar")
+;			case "t":
+;				Komorebic("retile")
+;			default:
+;				this.Menu_Main()
+;			}
+;		}

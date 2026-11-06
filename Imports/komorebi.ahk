@@ -2,99 +2,86 @@
 #SingleInstance Force
 
 ; Resize
-!^+Right::Komorebic("resize-axis horizontal increase")
-!^+Left::Komorebic("resize-axis horizontal decrease")
-!^+Up::Komorebic("resize-axis vertical increase")
-!^+Down::Komorebic("resize-axis vertical decrease")
+!Right::Komorebic("resize-axis horizontal increase")
+!Left::Komorebic("resize-axis horizontal decrease")
+!Up::Komorebic("resize-axis vertical increase")
+!Down::Komorebic("resize-axis vertical decrease")
 		
-; Stack windows
-#Right::Komorebic("cycle-stack next")
-#Left::Komorebic("cycle-stack previous")
+; Gui : Focus
+#Left::Komorebic("focus left")
+#Right::Komorebic("focus right")
 
-; Move stacked windows
-+#Up::Komorebic("stack-all")
-+#Down::Komorebic("unstack")
+#Up::Komorebic("cycle-workspace next")
+#Down::Komorebic("cycle-workspace previous")
 
-+#Left::Komorebic("cycle-stack-index previous")
-+#Right::Komorebic("cycle-stack-index next")
+; Shift + Gui : Move
++#Left::Komorebic("cycle-move-to-monitor previous")
++#Right::Komorebic("cycle-move-to-monitor next")
 
-; Normal focus
-#Home::Komorebic("focus left") 
-#End::Komorebic("focus right")
+#+Up::Komorebic("cycle-move-to-workspace next")
+#+Down::Komorebic("cycle-move-to-workspace previous")
 
-#PgUp::Komorebic("cycle-workspace next")
-#PgDn::Komorebic("cycle-workspace previous")
+
++!^Up::Komorebic("stack-all")
++!^Down::Komorebic("unstack-all")
++!^Left::Komorebic("cycle-stack previous")
++!^Right::Komorebic("cycle-stack next")
 
 ; Manipulate windows
-#Tab::Komorebic("toggle-float")
-#s::Komorebic("toggle-workspace-layer")
-#t::Komorebic("toggle-tiling")
+#t::Komorebic("toggle-float")
+#Tab::Komorebic("toggle-workspace-layer")
+
+#s::Komorebic("focus-workspace 7")
++#s:: {
+    Komorebic("move-to-workspace 7")
+}
+
 #f::Komorebic("toggle-monocle")
 #w::Komorebic("close")
-#y::Komorebic("toggle-lock")
-
 
 ; Window manager options
 #p::Komorebic("toggle-pause")
-#u::Komorebic("unmanage")
+
 #m::Komorebic("manage")
+#+m::Komorebic("unmanage")
+
 #b::Komorebic("focus-last-workspace")
 
+#1::Komorebic("focus-workspace 0")
+#2::Komorebic("focus-workspace 1")
+#3::Komorebic("focus-workspace 2")
+#4::Komorebic("focus-workspace 3")
+#5::Komorebic("focus-workspace 4")
+#6::Komorebic("focus-workspace 5")
+#7::Komorebic("focus-workspace 7")
 
-#1:: {
-Komorebic("focus-workspace 0")
-}
-
-#2:: { 
-Komorebic("focus-workspace 1")
-}
-
-#3:: {
-Komorebic("focus-workspace 2")
-}
-
-#4:: {
-Komorebic("focus-workspace 3")
-}
-
-#5:: {
-	Komorebic("focus-workspace 4")
-}
-
-#6:: {
-Komorebic("focus-workspace 5")
-}
-
-#7:: {
-	Komorebic("focus-workspace 6")
-}
 
 ; Move windows across workspaces
 ; Monitor
-+#1:: {
-     Komorebic("move-to-workspace 0")
-}
++#1::Komorebic("move-to-workspace 0")
++#2::Komorebic("move-to-workspace 1")
++#3::Komorebic("move-to-workspace 2")
++#4::Komorebic("move-to-workspace 3")
++#5::Komorebic("move-to-workspace 4")
++#6::Komorebic("move-to-workspace 5")
+#+7::Komorebic("send-to-workspace 7")
 
-+#2:: {
-    Komorebic("move-to-workspace 1")
-}
+#NumPad1::Komorebic("focus-workspace 0")
+#NumPad2::Komorebic("focus-workspace 1")
+#NumPad3::Komorebic("focus-workspace 2")
+#NumPad4::Komorebic("focus-workspace 3")
+#NumPad5::Komorebic("focus-workspace 4")
+#NumPad6::Komorebic("focus-workspace 5")
+#NumPad7::Komorebic("focus-workspace 7")
 
-+#3:: {
-    Komorebic("move-to-workspace 2")
-}
 
-+#4:: {
-    Komorebic("move-to-workspace 3")
-}
+; Move windows across workspaces•
+; Monitor
++#NumPad1::Komorebic("move-to-workspace 0")
++#NumPad2::Komorebic("move-to-workspace 1")
++#NumPad3::Komorebic("move-to-workspace 2")
++#NumPad4::Komorebic("move-to-workspace 3")
++#NumPad5::Komorebic("move-to-workspace 4")
++#NumPad6::Komorebic("move-to-workspace 5")
+#+NumPad7::Komorebic("send-to-workspace 7")
 
-+#5:: {
-    Komorebic("move-to-workspace 4")
-}
-
-+#6:: {
-    Komorebic("move-to-workspace 5")
-}
-
-+#7:: {
-    Komorebic("move-to-workspace 6")
-}

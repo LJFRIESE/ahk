@@ -1,89 +1,68 @@
-#SingleInstance
-
-;----------------------- Autocomplete ----------------
-; Move cursor inside paired brackets
-;~}::
-;~]:: {
-;	if A_PriorKey="[" {
-;		Send("{Left}")
-;	}
-;}
-;
-;~):: {
-;	if A_PriorKey="9" {
-;		Send("{Left}")
-;	}
-;}
-
-; When creating newline after brackets, move cursor up and tab
-;~Enter:: {
-;	if A_PriorKey="0" || A_PriorKey="]" {
-;		Send("{Enter}{Up}{Tab}")
-;	}
-;}
-
-
-; Move inside paired quotes
-;~'::
-;~":: {
-;	if A_PriorKey="'" {
-;		Send("{Left}")
-;	}
-;}
-;
-;~`:: {
-;	if A_PriorKey='``' {
-;		Send("{Left}")
-;	}
-;}
-
- 
-
-;------------------ Text/Files -----------------
-
-; Work around for copy+paste on the SAG
-; Save query to X:\Lucas F\tmp.txt
-; Then you can read it out
-;F21:: {
-	;tmpFileName := "X:\Lucas F\tmp.txt"
-	;A_Clipboard := ""		                    	; Clear clipboard
-	;A_Clipboard := FileRead(tmpFileName)			; Read from tmp file
-    ;Send('^v')                                      ; Send paste      
-;}
-
 ;----------------- Microsoft ---------------------
 ;System
 ; Lock
-
 ;Win + L is protected by Windows. It cannot be sent using Send or remapped. To lock the computer, use this instead:
 >!l::{
 	DllCall("LockWorkStation")
 }
 
-; Outlook
+;-----------------  Outlook ---------------------
 ; Insert Signature
-HotIfWinActive "ahk_exe OUTLOOK.EXE"
-^+i::{
-	sleep 250
-	Send("{Alt}e2as{Enter}")
-}
-HotIfWinActive
+#HotIf WinActive("ahk_exe OUTLOOK.EXE") 
+	^+i::{
+		sleep 250
+		Send("{Alt}e2as{Enter}")
+	}
+#HotIf
 
 
-; Excel 
-; Redo
-HotIfWinActive "ahk_exe EXCEL.EXE"
-^+z::^y
-HotIfWinActive
+;----------------- Excel ---------------------
+#HotIf WinActive("ahk_exe EXCEL.EXE")
+	; Redo
+	^+z::^y
 
-hotif
+	; Find and replace
+	^+r::^h
 
-;-------------------- Misc --------------------
+	^+s::{
+			Send("!fa")
+				sleep 2000
+			Send("y9")
+		}
+
+	^+;::{
+		Send("^a")
+		Sleep(50)
+		try xl := ComObjActive("Excel.Application")
+		catch
+			return
+		alerts := xl.DisplayAlerts
+		try {
+			xl.DisplayAlerts := false
+			sel := xl.Selection
+			sel.TextToColumns(sel, 1, 1, false, false, true, false, false, false)
+		} finally {
+			xl.DisplayAlerts := alerts
+		}
+	}
+#HotIf
 
 
-~^!+#F19::{
-    WinSetAlwaysOnTop -1, "A"
-}
+;-----------------  Notepad++ ---------------------
+#HotIf WinActive("ahk_exe notepad++.exe")
+	^r::^h
+#HotIf
 
+;----------------- Omnissa ---------------------
 
-;------------------ Mouse ----------------------
+; Disable certain shortcuts when Chrome tab title contains "Omnissa Horizon"
+#HotIf WinActive("ahk_exe chrome.exe") && InStr(gLastWinTitle, "Omnissa Horizon")
+	^w::{
+		; Pass Ctrl+W into the VM by releasing Ctrl and pressing w directly.
+		Send "{Ctrl up}w{Ctrl down}"
+	}
+
+	^n::Send "{Ctrl up}n{Ctrl down}"
+	^t::Send "{Ctrl up}t{Ctrl down}"
+#HotIf
+

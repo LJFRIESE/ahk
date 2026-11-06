@@ -1,121 +1,233 @@
-#Requires AutoHotkey v2.0
-#SingleInstance
-#Warn
+global WinHistory := []
+global PendingHwnd := 0
+global gLastWinTitle := ""
+global WinHook := 0
+global WinHookCb := 0
+global WinWalkIndex := 1
+global WinWalkUntil := 0
 
-InstallKeybdHook
-InstallMouseHook
-
-#h::  ; Win+H hotkey
-{
-    ; Get the text currently selected. The clipboard is used instead of
-    ; EditGetSelectedText because it works in a greater variety of editors
-    ; (namely word processors). Save the current clipboard contents to be
-    ; restored later. Although this handles only plain text, it seems better
-    ; than nothing:
-    ClipboardOld := A_Clipboard
-    A_Clipboard := "" ; Must start off blank for detection to work.
-    Send "^c"
-    if !ClipWait(1)  ; ClipWait timed out.
-    {
-        A_Clipboard := ClipboardOld ; Restore previous contents of clipboard before returning.
-        return
-    }
-    ; Replace CRLF and/or LF with `n for use in a "send-raw" hotstring:
-    ; The same is done for any other characters that might otherwise
-    ; be a problem in raw mode:
-    ClipContent := StrReplace(A_Clipboard, "``", "````")  ; Do this replacement first to avoid interfering with the others below.
-    ClipContent := StrReplace(ClipContent, "`r`n", "``n")
-    ClipContent := StrReplace(ClipContent, "`n", "``n")
-    ClipContent := StrReplace(ClipContent, "`t", "``t")
-    ClipContent := StrReplace(ClipContent, "`;", "```;")
-    A_Clipboard := ClipboardOld  ; Restore previous contents of clipboard.
-    ShowInputBox(":T:::" ClipContent)
+InitWindowTracking() {
+    global WinHook, WinHookCb
+    EVENT_SYSTEM_FOREGROUND := 0x0003
+    WINEVENT_OUTOFCONTEXT := 0x0000
+    WinHookCb := CallbackCreate(WinEventProc, , 7)
+    WinHook := DllCall("SetWinEventHook"
+        , "UInt", EVENT_SYSTEM_FOREGROUND
+        , "UInt", EVENT_SYSTEM_FOREGROUND
+        , "Ptr", 0
+        , "Ptr", WinHookCb
+        , "UInt", 0
+        , "UInt", 0
+        , "UInt", WINEVENT_OUTOFCONTEXT)
 }
 
-ShowInputBox(DefaultValue)
-{
-    ; This will move the input box's caret to a more friendly position:
-    SetTimer MoveCaret, 10
-    ; Show the input box, providing the default hotstring:
-    IB := InputBox("
-    (
-    Type your abbreviation at the indicated insertion point. You can also edit the replacement text if you wish.
-
-    Example entry: :T:btw::by the way
-    )", "New Hotstring",, DefaultValue)
-    if IB.Result = "Cancel"  ; The user pressed Cancel.
+WinEventProc(hHook, event, hwnd, idObject, idChild, idThread, dwmsEventTime) {
+    if (idObject != 0 || !hwnd)
         return
+    global PendingHwnd
+    PendingHwnd := hwnd
+    SetTimer(FlushPendingWindow, -50)
+}
 
-    if RegExMatch(IB.Value, "(?P<Label>:.*?:(?P<Abbreviation>.*?))::(?P<Replacement>.*)", &Entered)
-    {
-        if !Entered.Abbreviation
-            MsgText := "You didn't provide an abbreviation"
-        else if !Entered.Replacement
-            MsgText := "You didn't provide a replacement"
-        else
-        {
-            Hotstring Entered.Label, Entered.Replacement  ; Enable the hotstring now.
-            FileAppend "`n" IB.Value, A_ScriptFullPath  ; Save the hotstring for later use.
+FlushPendingWindow() {
+    global PendingHwnd
+    hwnd := PendingHwnd
+    PendingHwnd := 0
+    if hwnd
+        TrackActiveWindow(hwnd)
+}
+
+IsTrackableWindow(hwnd) {
+    static skipClasses := [
+        "Shell_TrayWnd",
+        "Shell_SecondaryTrayWnd",
+        "Windows.UI.Core.CoreWindow",
+        "WinUIDesktopWin32WindowClass",
+        "TopLevelWindowForOverflowXamlIsland",
+        "XamlExplorerHostIslandWindow",
+        "Windows.UI.Composition.DesktopWindowContentBridge",
+        "NotifyIconOverflowWindow",
+        "TrayNotifyWnd",
+        "TaskListThumbnailWnd",
+        "MultitaskingViewFrame",
+        "Xaml_WindowedPopupClass",
+        "#32768"
+    ]
+    static skipTitles := [
+        "justin_prod - DO NOT CLOSE"
+    ]
+    if !hwnd
+        return false
+    if !DllCall("IsWindow", "ptr", hwnd)
+        return false
+    if !DllCall("IsWindowVisible", "ptr", hwnd)
+        return false
+    cloaked := 0
+    if !DllCall("dwmapi\DwmGetWindowAttribute", "ptr", hwnd, "uint", 14, "int*", &cloaked, "int", 4) {
+        if cloaked
+            return false
+    }
+    if DllCall("GetWindow", "ptr", hwnd, "uint", 4)
+        return false
+    try {
+        winClass := WinGetClass("ahk_id " hwnd)
+        winTitle := WinGetTitle("ahk_id " hwnd)
+        if (winTitle = "")
+            return false
+        for title in skipTitles {
+            if (winTitle = title)
+                return false
+        }
+        for cls in skipClasses {
+            if (winClass = cls)
+                return false
+        }
+        ex := WinGetExStyle("ahk_id " hwnd)
+        if (ex & 0x80) && !(ex & 0x40000)
+            return false
+    } catch {
+        return false
+    }
+    return true
+}
+
+TrackActiveWindow(hNewWin) {
+    global WinHistory, gLastWinTitle, WinWalkUntil
+    if !IsTrackableWindow(hNewWin)
+        return
+    try {
+        gLastWinTitle := WinGetTitle("ahk_id " hNewWin)
+    } catch {
+        return
+    }
+    if A_TickCount < WinWalkUntil
+        return
+    for i, hwnd in WinHistory {
+        if hwnd = hNewWin {
+            WinHistory.RemoveAt(i)
+            break
         }
     }
+    WinHistory.InsertAt(1, hNewWin)
+    if WinHistory.Length > 20
+        WinHistory.Length := 20
+}
+
+CommitWinWalk() {
+    global WinWalkUntil, WinWalkIndex
+    WinWalkUntil := 0
+    WinWalkIndex := 1
+    TrackActiveWindow(WinExist("A"))
+}
+
+ActivatePreviousWindow() {
+    global WinHistory, WinWalkIndex, WinWalkUntil
+    if !WinHistory.Length {
+        tooltip("hPrevWin not assigned to valid window")
+        SetTimer(() => ToolTip(), -500)
+        return
+    }
+    if A_TickCount < WinWalkUntil
+        WinWalkIndex++
     else
-        MsgText := "The hotstring appears to be improperly formatted"
-
-    if IsSet(MsgText)
-    {
-        Result := MsgBox(MsgText ". Would you like to try again?",, 4)
-        if Result = "Yes"
-            ShowInputBox(DefaultValue)
+        WinWalkIndex := 2
+    n := WinHistory.Length
+    loop n {
+        if WinWalkIndex > n
+            WinWalkIndex := 1
+        hwnd := WinHistory[WinWalkIndex]
+        if IsTrackableWindow(hwnd) {
+            try {
+                WinWalkUntil := A_TickCount + 1200
+                SetTimer(CommitWinWalk, -1200)
+                WinActivate("ahk_id " hwnd)
+                CenterMouse()
+                return
+            } catch {
+            }
+        }
+        WinWalkIndex++
     }
-    
-    MoveCaret()
-    {
-        WinWait "New Hotstring"
-        ; Otherwise, move the input box's insertion point to where the user will type the abbreviation.
-        Send "{Home}{Right 3}"
-        SetTimer , 0
-    }
+    tooltip("hPrevWin not assigned to valid window")
+    SetTimer(() => ToolTip(), -1000)
 }
 
-;Image search
-findImage(){
-	CoordMode "Pixel"  ; Interprets the coordinates below as relative to the screen rather than the active window's client area.
-	VirtualWidth := SysGet(78)
-	VirtualHeight := SysGet(79)
-	
-	try
-	{
-		if ImageSearch(&FoundX, &FoundY, 0, 0, VirtualWidth, VirtualHeight, "C:\Users\LUCASFRI\Microsoft\Pictures\Capture.png")
-			MsgBox "The icon was found at " FoundX "x" FoundY
-		else
-			MsgBox "Icon could not be found on the screen."
+InitWindowTracking()
+TrackActiveWindow(WinExist("A"))
+
+GetGroupWindows(groupName) {
+	result := ""
+
+    groupList := WinGetList("ahk_group " groupName)
+    for hWnd in groupList {
+		result .= WinGetTitle("ahk_id " hWnd) "`n"
+		}
+		
+	;tooltip groupList.length
+	;MsgBox(result ? result : "No windows found")	
+	return groupList.length
 	}
-	catch as exc
-		MsgBox "Could not conduct the search due to the following error:`n" exc.Message
+
+runOrActivateGroup(groupName){
+	res := GroupActivate(groupName)
+	if (!res and GetGroupWindows(groupName) = 0) {
+		return false
+    }
+	try {
+		CenterMouse()
+	}
+	return true
 }
+
+teamsRestore() {
+	source := "C:\Users\LUCASFRI\misc\gifs"
+	destination := "C:\Users\LUCASFRI\AppData\Local\Packages\MSTeams_8wekyb3d8bbwe\LocalCache\Microsoft\MSTeams\Backgrounds\Uploads"
+
+	if !DirExist(destination)
+		DirCreate(destination)
+	Loop Files, source "\*.jpg", "F"
+		FileCopy(A_LoopFileFullPath, destination "\" A_LoopFileName, true)
+	}	
+	
+RunMSYS2(command) {
+    Run(
+        'wt C:\Users\LUCASFRI\scoop\apps\msys2\current\msys2_shell.cmd '
+        . '-ucrt64 -defterm -here -no-start -shell zsh -ic "' command '"'
+    )
+}
+
 	
 Komorebic(cmd) {
-     Run(format("komorebic.exe {}", cmd), , "Hide")
+    Run(format("komorebic.exe {}", cmd), , "Hide")
+	try {
+		CenterMouse()
+	}
 }
+
 
 ; If application is already running, focus it. Otherwise, launch it.
 runOrActivate(name){
-  	if ProcessExist(name) = 0 {
-		Run(name)
-		WinWaitActive("ahk_exe " . name)
-	} else {
-		if WinExist("Omnissa Horizon - Google Chrome") {
+  	;if (ProcessExist(name) > 0) & (ProcessExist("komorebi.exe") > 0){
+	;	try {
+	;		Komorebic("eager-focus " . name)
+	;	} catch {
+	;		Run(name)
+	;	}
+	;} else {
+		if WinExist("ahk_exe " . name){
+			WinActivate()
+		} else {
 			Run(name)
-			WinWaitActive("A")	
 		}
-	}
-	
-	if ProcessExist("komorebi.exe") > 0 {
-		Komorebic("eager-focus " . name) ; Going twice gets hidden floats in focus. 
-		Komorebic("eager-focus " . name)
-	} else {
-		WinWaitActive("ahk_exe " . name)
-	}
+	;}	
+	WinWaitActive("ahk_exe " . name ,,0.1)
+	;CenterMouse()
+}
+
+CenterMouse() {
+    CoordMode("Mouse", "Screen")
+    WinGetPos(&OutX, &OutY, &OutWidth, &OutHeight, "A")
+    MouseMove(OutX + (OutWidth / 2), OutY + (OutHeight / 2))
 }
 
 ; Join an array into a string.
