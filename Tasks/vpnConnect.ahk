@@ -10,9 +10,9 @@ if !(dlg := RemoteWork.openDialog()) {
 }
 try WinActivate("ahk_id " dlg)
 
-; Connect-only helper: leave an existing connection alone.
-if (ControlGetText("Button1", "ahk_id " dlg) = "Connect") {
-	ControlClick("Button1", "ahk_id " dlg, , , , "NA")
+; Connect-only helper: leave an existing connection alone. Clicking is skipped
+; unless the dialog's own button says "Connect".
+if (RemoteWork.clickDialogButton("Connect") = "Connect") {
 	if (prompt := WinWaitActive(RemoteWork.vpnName, "Accept", 10))
 		ControlClick("Button1", "ahk_id " prompt, , , , "NA")
 }
