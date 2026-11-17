@@ -1,8 +1,9 @@
 ; Focus a window on the monitor to the left/right of the active window.
-; Takes over Windows' own Win+Shift+Arrow "snap window to monitor" shortcut.
+; MEH (Ctrl+Alt+Shift)+Left/Right; Win+Shift+Arrow is left to Windows'
+; own "snap window to monitor" shortcut to avoid the conflict.
 
-$#+Left::FocusMonitor(-1)
-$#+Right::FocusMonitor(1)
+$^!+Left::FocusMonitor(-1)
+$^!+Right::FocusMonitor(1)
 
 FocusMonitor(dir) {
 	CoordMode("Mouse", "Screen")
