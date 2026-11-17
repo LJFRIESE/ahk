@@ -5,6 +5,7 @@ $#+Left::FocusMonitor(-1)
 $#+Right::FocusMonitor(1)
 
 FocusMonitor(dir) {
+	CoordMode("Mouse", "Screen")
 	active := WinGetID("A")
 	if !active
 		return
@@ -78,6 +79,7 @@ FocusMonitor(dir) {
 		cy := wy + wh / 2
 		if (cx >= tl && cx < tr && cy >= tt && cy < tb) {
 			WinActivate("ahk_id " hw)
+			MouseMove(cx, cy, 0)
 			return
 		}
 	}
