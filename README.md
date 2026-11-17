@@ -24,4 +24,5 @@ Personal AutoHotkey v2 setup.
 
 - `Tasks\` contains standalone helper scripts.
 - `^!+Space` opens the action menu.
+- Hyper (Win+Ctrl+Shift+Alt) and `+#Enter` focus/launch Windows Terminal; the bare Hyper chord is swallowed so Windows does not open Office/Copilot.
 - Stuck modifier events are logged to `%APPDATA%\ahk\input-guard.log`.

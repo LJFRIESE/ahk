@@ -50,12 +50,25 @@ GroupAdd("teams", "ahk_exe ms-teams.exe")
 
 GroupAdd("terminal", "ahk_exe WindowsTerminal.exe")
 GroupAdd("terminal", "ahk_exe wt.exe")
-+#Enter::{
-	found := runOrActivateGroup("terminal")
-	if !found {
+
+ActivateTerminal() {
+	if !runOrActivateGroup("terminal")
 		RunWait("wt.exe")
-	}
 }
+
++#Enter::ActivateTerminal()
+
+; Hyper = Win+Ctrl+Shift+Alt. Windows claims this bare chord for Office/Copilot;
+; swallowing it here keeps that from opening. One hotkey per modifier key
+; because any of the four can be the last one pressed.
+#^!LShift::ActivateTerminal()
+#^!RShift::ActivateTerminal()
+#^+LAlt::ActivateTerminal()
+#^+RAlt::ActivateTerminal()
+#!+LCtrl::ActivateTerminal()
+#!+RCtrl::ActivateTerminal()
+^!+LWin::ActivateTerminal()
+^!+RWin::ActivateTerminal()
 
 GroupAdd("chrome", "ahk_exe chrome.exe",,"Omnissa Horizon")
 +#c::{
