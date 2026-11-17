@@ -18,6 +18,7 @@ InstallMouseHook
 #Include Imports/ActionMenu.ahk
 #Include Imports/RemoteWork.ahk
 #Include Imports/Macros.ahk
+#Include Imports/MonitorFocus.ahk
 
 ; #Include Imports/F24WinBridge.ahk
 ;#Include Imports/komorebi.ahk
