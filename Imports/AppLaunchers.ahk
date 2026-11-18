@@ -54,6 +54,16 @@ GroupAdd("terminal", "ahk_exe wt.exe")
 ActivateTerminal() {
 	if !runOrActivateGroup("terminal")
 		RunWait("wt.exe")
+
+	; An open Copilot window can claim this chord after the hotkey runs and
+	; steal focus back. Reclaim it on the next tick; harmless when Copilot
+	; is closed or the terminal already has focus.
+	SetTimer(ReclaimTerminalFocus, -200)
+}
+
+ReclaimTerminalFocus() {
+	if !WinActive("ahk_group terminal")
+		WinActivate("ahk_group terminal")
 }
 
 +#Enter::ActivateTerminal()
