@@ -40,9 +40,9 @@ class ActionMenu {
 
 		switch choice, 0 {
 			case "o":
-				Run("M:\REPORTS\ONGOING")
+				OpenFolderInExplorerTab("M:\REPORTS\ONGOING")
 			case "r":
-				Run("M:\REPORTS")
+				OpenFolderInExplorerTab("M:\REPORTS")
 			default:
 				return
 			}
@@ -56,7 +56,7 @@ class ActionMenu {
 
 		switch choice, 0 {
 			case "d":
-				Run("M:\REPORTS\ONGOING")
+				OpenFolderInExplorerTab("M:\REPORTS\ONGOING")
 			default:
 				this.Menu_Main()
 			}
@@ -73,7 +73,7 @@ class ActionMenu {
 			case "n":
 				Run("python C:\Users\LUCASFRI\agent_projects\ad-hocs\create_adhoc_folder.py")
 			case "d":
-				Run("M:\REPORTS\AD HOC")
+				OpenFolderInExplorerTab("M:\REPORTS\AD HOC")
 			default:
 				this.Menu_Main()
 			}

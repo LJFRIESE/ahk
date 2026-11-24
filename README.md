@@ -26,3 +26,4 @@ Personal AutoHotkey v2 setup.
 - `^!+Space` opens the action menu.
 - Hyper (Win+Ctrl+Shift+Alt) and `+#Enter` focus/launch Windows Terminal; the bare Hyper chord is swallowed so Windows does not open Office/Copilot.
 - Stuck modifier events are logged to `%APPDATA%\ahk\input-guard.log`.
+- Syntax check from zsh: `MSYS2_ARG_CONV_EXCL='*' ~/AppData/Local/programs/AutoHotkey/v2/AutoHotkey64.exe /validate master.ahk` (exit 0 = clean). `/validate` is a switch; without the env prefix MSYS2 rewrites it into a path and AHK silently exits 2. A quoted `~` is not expanded by zsh.

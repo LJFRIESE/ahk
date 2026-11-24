@@ -179,6 +179,54 @@ runOrActivateGroup(groupName){
 	return true
 }
 
+; Open a folder as a new tab in an existing Explorer window. Windows has no
+; supported command line switch for this, so ask the active Explorer tab to
+; create a tab and then type the path into its address bar. If anything fails,
+; fall back to the normal Run behaviour (a new window).
+OpenFolderInExplorerTab(path) {
+	hwnd := WinActive("ahk_class CabinetWClass")
+	if !hwnd
+		hwnd := WinExist("ahk_class CabinetWClass")
+	if !hwnd {
+		Run(path)
+		return
+	}
+
+	try {
+		WinActivate("ahk_id " . hwnd)
+		if !WinWaitActive("ahk_id " . hwnd, , 1) {
+			Run(path)
+			return
+		}
+
+		prevTabHwnd := 0
+		try prevTabHwnd := ControlGetHwnd("ShellTabWindowClass1", "ahk_id " . hwnd)
+		if prevTabHwnd {
+			; Undocumented Explorer message meaning "new tab", sent to the tab control.
+			PostMessage(0x111, 0xA21B, 0, prevTabHwnd, "ahk_id " . hwnd)
+			Loop 20 {
+				Sleep(50)
+				curTabHwnd := 0
+				try curTabHwnd := ControlGetHwnd("ShellTabWindowClass1", "ahk_id " . hwnd)
+				if curTabHwnd && curTabHwnd != prevTabHwnd
+					break
+			}
+		} else {
+			; Older Explorer build without a tab control.
+			Send("^t")
+			Sleep(200)
+		}
+
+		Send("^l")
+		Sleep(50)
+		SendText(path)
+		Sleep(50)
+		Send("{Enter}")
+	} catch {
+		Run(path)
+	}
+}
+
 teamsRestore() {
 	source := "C:\Users\LUCASFRI\misc\gifs"
 	destination := "C:\Users\LUCASFRI\AppData\Local\Packages\MSTeams_8wekyb3d8bbwe\LocalCache\Microsoft\MSTeams\Backgrounds\Uploads"
