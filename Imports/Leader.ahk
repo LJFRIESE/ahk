@@ -10,7 +10,6 @@ class Leader {
     static Active := false
     static ih := 0
     static TT := 0
-    static TTText := 0
     static stack := []
 
     ; An entry is {key, label} plus either `action` (callable) or `children`
@@ -110,19 +109,22 @@ class Leader {
             text .= entry.key . ": " . entry.label . "`n"
         text .= "----------------`nF24/Esc: exit · " . this.Timeout . "s"
 
-        if !IsObject(this.TT) {
-            this.TT := Gui("+AlwaysOnTop -Caption +ToolWindow")
-            this.TT.Name := "LeaderTooltip"
-            this.TT.SetFont("s10", "Segoe UI")
-            this.TT.BackColor := "F0F0F0"
-            this.TTText := this.TT.Add("Text", , "")
-        }
-        this.TTText.Value := text
+        ; AutoSize fits the window to its controls, and a Text control keeps the
+        ; size it was created with. Rebuild the Gui so its control is sized from
+        ; the current text instead of clipping it.
+        this.HideMenu()
+        this.TT := Gui("+AlwaysOnTop -Caption +ToolWindow")
+        this.TT.Name := "LeaderTooltip"
+        this.TT.SetFont("s10", "Segoe UI")
+        this.TT.BackColor := "F0F0F0"
+        this.TT.Add("Text", , text)
         this.TT.Show("NoActivate AutoSize")
     }
 
     static HideMenu() {
-        if IsObject(this.TT)
-            this.TT.Hide()
+        if IsObject(this.TT) {
+            this.TT.Destroy()
+            this.TT := 0
+        }
     }
 }

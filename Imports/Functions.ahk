@@ -51,7 +51,10 @@ IsTrackableWindow(hwnd) {
         "TaskListThumbnailWnd",
         "MultitaskingViewFrame",
         "Xaml_WindowedPopupClass",
-        "#32768"
+        "#32768",
+        "AutoHotkey",
+        "AutoHotkey v2",
+        "AutoHotkeyGUI"
     ]
     static skipTitles := [
         "justin_prod - DO NOT CLOSE"
@@ -72,6 +75,10 @@ IsTrackableWindow(hwnd) {
     try {
         winClass := WinGetClass("ahk_id " hwnd)
         winTitle := WinGetTitle("ahk_id " hwnd)
+        ; Every window owned by an AHK script (including tooltips and GUIs).
+        procName := WinGetProcessName("ahk_id " hwnd)
+        if InStr(procName, "AutoHotkey") = 1
+            return false
         if (winTitle = "")
             return false
         for title in skipTitles {
