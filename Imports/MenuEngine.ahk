@@ -32,8 +32,12 @@ class MenuEngine {
         this.Id := this.opts.id
         gActionMenuDepth += 1
         this.stack := [node]
-        this.Render()
+
+        ; Start listening before building the tooltip. A key pressed while F24
+        ; is still held can arrive during Gui creation; with the old ordering
+        ; that character had no InputHook to receive it.
         this.StartInput()
+        this.Render()
     }
 
     static Close() {
@@ -60,8 +64,11 @@ class MenuEngine {
         ih.VisibleNonText := false
         ih.OnChar := ObjBindMethod(this, "OnChar")
         ih.OnEnd := ObjBindMethod(this, "OnEnd")
-        ih.Start()
+
+        ; Store the hook before Start(): a rolled-over key can fire OnChar
+        ; immediately, and Close() needs this.ih in order to stop the hook.
         this.ih := ih
+        ih.Start()
     }
 
     static StopInput() {

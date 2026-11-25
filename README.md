@@ -24,7 +24,7 @@ Personal AutoHotkey v2 setup.
 
 ## Notes
 
-- `Tasks\` contains standalone helper scripts.
+- `Tasks\` contains standalone helper scripts. `leader-rollover-test.ahk` is the regression check for keys pressed before F24 is released; it uses F23 so it can run alongside `master.ahk` and writes its result to `leader-rollover-test.log`.
 - `^!+Space` opens the action menu.
 - `F24` (from the ZMK keyboard) toggles leader mode; `b` activates the previous window. Esc or a second F24 cancels; a 3s idle timeout also exits.
 - Both menus use the same engine: Backspace goes up one level, Esc closes, and unrecognised keys are swallowed. The `!+^Space` action menu waits indefinitely; the leader times out after 3s.
