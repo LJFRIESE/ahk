@@ -53,7 +53,7 @@ class ActionMenu {
             entries: [
                 {key: "n", label: "New Ad Hoc", action: () => Run("python C:\Users\LUCASFRI\agent_projects\ad-hocs\create_adhoc_folder.py")},
                 {key: "d", label: "Ad Hoc Directory", action: () => OpenFolderInExplorerTab("M:\REPORTS\AD HOC")},
-                {key: "f", label: "Find Ad Hoc Reports", action: () => RunFind("/m/REPORTS/AD HOC")},
+                {key: "f", label: "Find Ad Hoc Reports", action: () => RunFind("/m/REPORTS/AD HOC", true)},
                 {key: "t", label: "Tracker", action: () => Run('"M:\REPORTS\AD HOC\Ad Hoc Request Tracker.url"')}
             ]
         }

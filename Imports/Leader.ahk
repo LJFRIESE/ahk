@@ -57,7 +57,7 @@ class Leader {
                 {key: "f", label: "Files (~)", action: () => RunFind()},
                 {key: "g", label: "Git repos", action: () => RunFind("~/git")},
                 {key: "p", label: "Projects", action: () => RunFind("~/agent_projects")},
-                {key: "a", label: "Ad hoc reports", action: () => RunFind("/m/REPORTS/AD HOC")},
+                {key: "a", label: "Ad hoc reports", action: () => RunFind("/m/REPORTS/AD HOC", true)},
                 {key: "r", label: "Recent files", action: () => RunFind("/c/Users/" . A_UserName . "/AppData/Roaming/Microsoft/Windows/Recent")}
             ]
         }

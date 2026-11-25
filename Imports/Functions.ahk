@@ -263,14 +263,15 @@ RunMSYS2(command) {
 
 ; Open the zsh ff browser at a given MSYS-style path. Tilde paths stay
 ; unquoted so zsh expands them; other paths are single-quoted for spaces.
-RunFind(path := "~") {
+; fileMode starts ff in file mode instead of its default directory mode.
+RunFind(path := "~", fileMode := false) {
     if (path = "~" || SubStr(path, 1, 2) = "~/")
         cd := path
     else {
         q := Chr(39)
         cd := q . StrReplace(path, q, q . "\" . q . q) . q
     }
-    RunMSYS2("cd " . cd . " && ff")
+    RunMSYS2("cd " . cd . " && ff" . (fileMode ? " -f" : ""))
 }
 
 	
