@@ -71,6 +71,13 @@ class MenuEngine {
         ih.Start()
     }
 
+    ; Drive the tree from a hotkey rather than a typed character.
+    static Select(char) {
+        if !this.Active || !IsObject(this.ih)
+            return
+        this.OnChar(this.ih, char)
+    }
+
     static StopInput() {
         ih := this.ih
         this.ih := 0
@@ -142,6 +149,8 @@ class MenuEngine {
         text := breadcrumb . "`n"
         node := stack[stack.Length]
         for entry in node.entries {
+            if entry.HasOwnProp("hidden") && entry.hidden
+                continue
             if !entry.HasOwnProp("key") {
                 text .= entry.label . "`n"
                 continue
