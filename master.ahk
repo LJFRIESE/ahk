@@ -12,6 +12,7 @@ InstallKeybdHook
 InstallMouseHook
 
 #Include Imports/Functions.ahk
+#Include Imports/WindowManagement.ahk
 #Include Imports/InputGuard.ahk
 #Include Imports/VimMode.ahk
 #Include Imports/AppLaunchers.ahk

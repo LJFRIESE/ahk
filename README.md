@@ -12,7 +12,8 @@ Personal AutoHotkey v2 setup.
 
 | File | Purpose |
 | --- | --- |
-| `Imports\Functions.ahk` | Shared helpers and small utilities. |
+| `Imports\Functions.ahk` | Shared helpers, window history and small utilities. |
+| `Imports\WindowManagement.ahk` | Snapping, monitor moves and window cycle helpers for the leader menu. |
 | `Imports\InputGuard.ahk` | Releases modifier keys left logically down and logs the event. |
 | `Imports\VimMode.ahk` | Vim-style navigation, operators and macro recording. |
 | `Imports\AppLaunchers.ahk` | Global app-launch and app-activation hotkeys. |
@@ -26,7 +27,9 @@ Personal AutoHotkey v2 setup.
 
 - `Tasks\` contains standalone helper scripts. `leader-rollover-test.ahk` is the regression check for keys pressed before F24 is released; it uses F23 so it can run alongside `master.ahk` and writes its result to `leader-rollover-test.log`.
 - `^!+Space` opens the action menu.
-- `F24` (from the ZMK keyboard) toggles leader mode; `b` activates the previous window. Esc or a second F24 cancels; a 3s idle timeout also exits.
+- `F24` (from the ZMK keyboard) toggles leader mode; `b` activates the previous window, `w` opens window management and `f` opens the `ff` file browser. Esc or a second F24 cancels; a 3s idle timeout also exits.
+- Leader `w` uses vim mnemonics: `h`/`l` snap left/right, `k`/`j` snap top/bottom, `f` fills the monitor, `c` closes, `b`/`p` cycle windows, `<`/`>` move between monitors, `o` minimises other windows and `d` shows monitor info.
+- Leader `f` runs the zsh `ff` browser in `~` (`f`), `~/git` (`g`), `~/agent_projects` (`p`), the ad hoc reports share (`a`) or Windows Recent files (`r`). The old action-menu `Find` entry is gone; ad hoc Find still lives under Reporting → AdHoc.
 - Both menus use the same engine: Backspace goes up one level, Esc closes, and unrecognised keys are swallowed. The `!+^Space` action menu waits indefinitely; the leader times out after 3s.
 - Hyper (Win+Ctrl+Shift+Alt) and `+#Enter` focus/launch Windows Terminal; the bare Hyper chord is swallowed so Windows does not open Office/Copilot.
 - Stuck modifier events are logged to `%APPDATA%\ahk\input-guard.log`.

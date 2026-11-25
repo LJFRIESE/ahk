@@ -18,7 +18,6 @@ class ActionMenu {
                 {key: "r", label: "Reporting", children: this.Reporting()},
                 {key: "w", label: "Web", children: this.Web()},
                 {separator: true, label: "----- Quick Commands -----"},
-                {key: "f", label: "Find", action: () => RunMSYS2("ff")},
                 {key: "t", label: "Teams fix", action: teamsRestore},
                 {separator: true, label: "----- AHK Control -----"},
                 {key: "v", label: "Vim", action: () => VimMode.Toggle()},
@@ -54,7 +53,7 @@ class ActionMenu {
             entries: [
                 {key: "n", label: "New Ad Hoc", action: () => Run("python C:\Users\LUCASFRI\agent_projects\ad-hocs\create_adhoc_folder.py")},
                 {key: "d", label: "Ad Hoc Directory", action: () => OpenFolderInExplorerTab("M:\REPORTS\AD HOC")},
-                {key: "f", label: "Find Ad Hoc Reports", action: () => RunMSYS2("cd /m/REPORTS/'AD HOC' && ff")},
+                {key: "f", label: "Find Ad Hoc Reports", action: () => RunFind("/m/REPORTS/AD HOC")},
                 {key: "t", label: "Tracker", action: () => Run('"M:\REPORTS\AD HOC\Ad Hoc Request Tracker.url"')}
             ]
         }

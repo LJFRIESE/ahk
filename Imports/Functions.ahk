@@ -127,21 +127,23 @@ CommitWinWalk() {
     TrackActiveWindow(WinExist("A"))
 }
 
-ActivatePreviousWindow() {
+CycleActiveWindow(step) {
     global WinHistory, WinWalkIndex, WinWalkUntil
     if !WinHistory.Length {
         tooltip("hPrevWin not assigned to valid window")
         SetTimer(() => ToolTip(), -500)
         return
     }
-    if A_TickCount < WinWalkUntil
-        WinWalkIndex++
-    else
-        WinWalkIndex := 2
     n := WinHistory.Length
+    if A_TickCount < WinWalkUntil
+        WinWalkIndex += step
+    else
+        WinWalkIndex := (step > 0 ? 2 : n)
     loop n {
         if WinWalkIndex > n
-            WinWalkIndex := 1
+            WinWalkIndex -= n
+        if WinWalkIndex < 1
+            WinWalkIndex += n
         hwnd := WinHistory[WinWalkIndex]
         if IsTrackableWindow(hwnd) {
             try {
@@ -153,10 +155,18 @@ ActivatePreviousWindow() {
             } catch {
             }
         }
-        WinWalkIndex++
+        WinWalkIndex += step
     }
     tooltip("hPrevWin not assigned to valid window")
     SetTimer(() => ToolTip(), -1000)
+}
+
+ActivatePreviousWindow() {
+    CycleActiveWindow(1)
+}
+
+ActivateNextWindow() {
+    CycleActiveWindow(-1)
 }
 
 InitWindowTracking()
@@ -249,6 +259,18 @@ RunMSYS2(command) {
         'wt C:\Users\LUCASFRI\scoop\apps\msys2\current\msys2_shell.cmd '
         . '-ucrt64 -defterm -here -no-start -shell zsh -ic "' command '"'
     )
+}
+
+; Open the zsh ff browser at a given MSYS-style path. Tilde paths stay
+; unquoted so zsh expands them; other paths are single-quoted for spaces.
+RunFind(path := "~") {
+    if (path = "~" || SubStr(path, 1, 2) = "~/")
+        cd := path
+    else {
+        q := Chr(39)
+        cd := q . StrReplace(path, q, q . "\" . q . q) . q
+    }
+    RunMSYS2("cd " . cd . " && ff")
 }
 
 	
