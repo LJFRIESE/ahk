@@ -20,7 +20,7 @@ InstallMouseHook
 #Include Imports/Macros.ahk
 #Include Imports/MonitorFocus.ahk
 
-; #Include Imports/F24WinBridge.ahk
+#Include Imports/Leader.ahk
 ;#Include Imports/komorebi.ahk
 
 
@@ -33,6 +33,8 @@ InputGuard.Start()
 !+^Space:: {
     ActionMenu.Menu_Main()
 }
+
+F24::Leader.Toggle()
 
 #Hotstring EndChars `n`tG 
 #Hotstring o
