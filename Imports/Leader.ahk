@@ -36,8 +36,8 @@ class Leader {
             entries: [
                 {key: "h", label: "Snap left", action: () => SnapActiveWindow(-1)},
                 {key: "l", label: "Snap right", action: () => SnapActiveWindow(1)},
-                {key: "k", label: "Snap top", action: () => SnapActiveWindowVertical(-1)},
-                {key: "j", label: "Snap bottom", action: () => SnapActiveWindowVertical(1)},
+                {key: "k", label: "Snap top", action: () => SnapActiveWindow(-1, "vertical")},
+                {key: "j", label: "Snap bottom", action: () => SnapActiveWindow(1, "vertical")},
                 {key: "f", label: "Fill monitor", action: MaximizeActiveWindow},
                 {key: "c", label: "Close window", action: CloseActiveWindow},
                 {key: "b", label: "Previous window", action: ActivatePreviousWindow},

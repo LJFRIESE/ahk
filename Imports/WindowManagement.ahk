@@ -1,15 +1,8 @@
 ; Window management helpers for the F24 leader menu.
-; Layout changes use native Windows snapping where it exists and explicit
-; work-area geometry for top/bottom halves, which Windows has no shortcut for.
+; Layout changes use explicit work-area geometry instead of Windows snapping:
+; Win+Left/Right opens Snap Assist and steals focus, which breaks repeat snaps.
 
-SnapActiveWindow(dir) {
-    if dir < 0
-        Send("#{Left}")
-    else
-        Send("#{Right}")
-}
-
-SnapActiveWindowVertical(dir) {
+SnapActiveWindow(dir, axis := "horizontal") {
     hwnd := WinGetID("A")
     if !hwnd
         return
@@ -17,11 +10,19 @@ SnapActiveWindowVertical(dir) {
     MonitorGetWorkArea(MonitorForWindow(hwnd), &l, &t, &r, &b)
     WinRestore("ahk_id " hwnd)
 
-    half := (b - t) / 2
-    if dir < 0
-        WinMove(l, t, r - l, half, "ahk_id " hwnd)
-    else
-        WinMove(l, t + half, r - l, half, "ahk_id " hwnd)
+    if (axis = "vertical") {
+        half := (b - t) / 2
+        if dir < 0
+            WinMove(l, t, r - l, half, "ahk_id " hwnd)
+        else
+            WinMove(l, t + half, r - l, half, "ahk_id " hwnd)
+    } else {
+        half := (r - l) / 2
+        if dir < 0
+            WinMove(l, t, half, b - t, "ahk_id " hwnd)
+        else
+            WinMove(l + half, t, half, b - t, "ahk_id " hwnd)
+    }
     CenterMouse()
 }
 
