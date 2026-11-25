@@ -38,12 +38,6 @@ InputGuard.Start()
 
 F24::Leader.Toggle()
 
-; While the leader is active, Ctrl+W drives the hidden Window entry, mirroring
-; nvim's <C-w> prefix. Outside the leader, ^w keeps its normal behaviour.
-#HotIf MenuEngine.Active && MenuEngine.Id = "Leader"
-$^w::MenuEngine.Push(Leader.Window())
-#HotIf
-
 #Hotstring EndChars `n`tG 
 #Hotstring o
 

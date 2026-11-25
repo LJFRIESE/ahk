@@ -23,7 +23,7 @@ class Leader {
         return {
             label: "Leader",
             entries: [
-                {label: "^w: Window"},
+                {label: "w: Window"},
                 {key: "f", label: "Find", children: this.Find()},
                 {key: "b", label: "Previous window", action: ActivatePreviousWindow}
             ]
@@ -63,3 +63,7 @@ class Leader {
         }
     }
 }
+
+#HotIf MenuEngine.Active && MenuEngine.Id = "Leader"
+	$w::MenuEngine.Push(Leader.Window())
+#HotIf

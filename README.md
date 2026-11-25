@@ -27,8 +27,8 @@ Personal AutoHotkey v2 setup.
 
 - `Tasks\` contains standalone helper scripts. `leader-rollover-test.ahk` is the regression check for keys pressed before F24 is released; it uses F23 so it can run alongside `master.ahk` and writes its result to `leader-rollover-test.log`.
 - `^!+Space` opens the action menu.
-- `F24` (from the ZMK keyboard) toggles leader mode; `b` activates the previous window, Ctrl+W opens window management and `f` opens the `ff` file browser. Esc or a second F24 cancels; a 3s idle timeout also exits.
-- Leader Ctrl+W uses vim mnemonics: `h`/`l` snap left/right, `k`/`j` snap top/bottom, `f` fills the monitor, `c` closes, `b`/`p` cycle windows, `<`/`>` move between monitors, `o` minimises other windows and `d` shows monitor info. Snapping uses explicit work-area geometry so Windows Snap Assist never steals focus.
+- `F24` (from the ZMK keyboard) toggles leader mode; `b` activates the previous window, `w` opens window management and `f` opens the `ff` file browser. Esc or a second F24 cancels; a 3s idle timeout also exits.
+- Leader `w` uses vim mnemonics: `h`/`l` snap left/right, `k`/`j` snap top/bottom, `f` fills the monitor, `c` closes, `b`/`p` cycle windows, `<`/`>` move between monitors, `o` minimises other windows and `d` shows monitor info. Snapping uses explicit work-area geometry so Windows Snap Assist never steals focus.
 - Leader `f` runs the zsh `ff` browser in `~` (`f`), `~/git` (`g`), `~/agent_projects` (`p`), the ad hoc reports share (`a`) or Windows Recent files (`r`). The old action-menu `Find` entry is gone; ad hoc Find still lives under Reporting → AdHoc.
 - Both menus use the same engine: Backspace goes up one level, Esc closes, and unrecognised keys are swallowed. The `!+^Space` action menu waits indefinitely; the leader times out after 3s.
 - Hyper (Win+Ctrl+Shift+Alt) and `+#Enter` focus/launch Windows Terminal; the bare Hyper chord is swallowed so Windows does not open Office/Copilot.
