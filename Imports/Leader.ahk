@@ -24,7 +24,6 @@ class Leader {
             label: "Leader",
             entries: [
                 {label: "^w: Window"},
-                {key: "w", label: "Window", hidden: true, children: this.Window()},
                 {key: "f", label: "Find", children: this.Find()},
                 {key: "b", label: "Previous window", action: ActivatePreviousWindow}
             ]

@@ -71,11 +71,14 @@ class MenuEngine {
         ih.Start()
     }
 
-    ; Drive the tree from a hotkey rather than a typed character.
-    static Select(char) {
-        if !this.Active || !IsObject(this.ih)
+    ; Enter a child node from a hotkey rather than a typed character.
+    static Push(node) {
+        if !this.Active || !IsObject(this.ih) || !this.stack.Length
             return
-        this.OnChar(this.ih, char)
+        this.stack.Push(this.Resolve(node))
+        this.Render()
+        if this.opts.timeout > 0
+            this.ih.Timeout := this.opts.timeout
     }
 
     static StopInput() {
@@ -149,8 +152,6 @@ class MenuEngine {
         text := breadcrumb . "`n"
         node := stack[stack.Length]
         for entry in node.entries {
-            if entry.HasOwnProp("hidden") && entry.hidden
-                continue
             if !entry.HasOwnProp("key") {
                 text .= entry.label . "`n"
                 continue
