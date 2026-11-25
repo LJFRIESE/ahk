@@ -65,7 +65,8 @@ class ActionMenu {
 	static Menu_AdHoc() {
 		options := [
 			["n", "New Ad Hoc"],
-			["d", "Ad Hoc Directory"]
+			["d", "Ad Hoc Directory"],
+			["f", "Find Ad Hoc Reports"]
 		]
 		choice := this.WaitForChoice("[A]d hoc Reports", options)
 
@@ -74,6 +75,8 @@ class ActionMenu {
 				Run("python C:\Users\LUCASFRI\agent_projects\ad-hocs\create_adhoc_folder.py")
 			case "d":
 				OpenFolderInExplorerTab("M:\REPORTS\AD HOC")
+			case "f":
+				RunMSYS2("cd /m/REPORTS/'AD HOC' && ff")
 			default:
 				this.Menu_Main()
 			}
