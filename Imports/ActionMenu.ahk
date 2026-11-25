@@ -1,214 +1,109 @@
+; Action menu nodes. Driven by MenuEngine; entry point is !+^Space in master.ahk.
+; Key labels are preserved from the previous WaitForChoice implementation.
+
 class ActionMenu {
+    static Menu_Main() {
+        MenuEngine.Open(this.Root(), {
+            id: "ActionMenu",
+            timeout: 0,
+            exitKeys: "{Esc}{Enter}{Pause}",
+            footer: "Backspace: back · Esc/Enter: exit"
+        })
+    }
 
-	; === Initial Menu ===
-	static Menu_Main() { 
-		options := [
-			["r", "Reporting"],
-			["w", "Web"],
-			[":-----  Quick Commands -----"," "],
-			;["k", "Komorebic"],
-			["f", "Find"],
-			["t", "Teams fix"],
-			[":----- AHK Control -----"," "],
-			["v", "Vim"],
-			["z", "Reload"],
-			["m", "More"]
-		]
-		choice := this.WaitForChoice("Main menu", options )
+    static Root() {
+        return {
+            label: "Actions",
+            entries: [
+                {key: "r", label: "Reporting", children: this.Reporting()},
+                {key: "w", label: "Web", children: this.Web()},
+                {separator: true, label: "----- Quick Commands -----"},
+                {key: "f", label: "Find", action: () => RunMSYS2("ff")},
+                {key: "t", label: "Teams fix", action: teamsRestore},
+                {separator: true, label: "----- AHK Control -----"},
+                {key: "v", label: "Vim", action: () => VimMode.Toggle()},
+                {key: "z", label: "Reload", action: ReloadAllScripts},
+                {key: "m", label: "More", children: this.More()}
+            ]
+        }
+    }
 
-		switch choice, 0 {
-			case "f": 
-				RunMSYS2("ff")
-			case "t":
-				teamsRestore()
-			case "v":
-				VimMode.Toggle()
-			case "z":
-				ReloadAllScripts()
-			default:
-				return
-			}
-	}
-	
-	static Menu_Reporting() {
-		options := [
-			["a", "AdHoc"],
-			["o", "Ongoing"],
-			["r", "Reports"],
-		]
-		choice := this.WaitForChoice("[R]eporting", options)
+    static Reporting() {
+        return {
+            label: "Reporting",
+            entries: [
+                {key: "a", label: "AdHoc", children: this.AdHoc()},
+                {key: "o", label: "Ongoing", children: this.Ongoing()},
+                {key: "r", label: "Reports", action: () => OpenFolderInExplorerTab("M:\REPORTS")}
+            ]
+        }
+    }
 
-		switch choice, 0 {
-			case "o":
-				OpenFolderInExplorerTab("M:\REPORTS\ONGOING")
-			case "r":
-				OpenFolderInExplorerTab("M:\REPORTS")
-			default:
-				return
-			}
-		}
-		
-	static Menu_Ongoing() {
-		options := [
-			["d", "Ongoing Reports Directory"]
-		]
-		choice := this.WaitForChoice("[O]ngoing Reports", options)
+    static Ongoing() {
+        return {
+            label: "Ongoing Reports",
+            entries: [
+                {key: "d", label: "Ongoing Reports Directory", action: () => OpenFolderInExplorerTab("M:\REPORTS\ONGOING")}
+            ]
+        }
+    }
 
-		switch choice, 0 {
-			case "d":
-				OpenFolderInExplorerTab("M:\REPORTS\ONGOING")
-			default:
-				this.Menu_Main()
-			}
-		}
-		
-	static Menu_AdHoc() {
-		options := [
-			["n", "New Ad Hoc"],
-			["d", "Ad Hoc Directory"],
-			["f", "Find Ad Hoc Reports"]
-		]
-		choice := this.WaitForChoice("[A]d hoc Reports", options)
+    static AdHoc() {
+        return {
+            label: "Ad hoc Reports",
+            entries: [
+                {key: "n", label: "New Ad Hoc", action: () => Run("python C:\Users\LUCASFRI\agent_projects\ad-hocs\create_adhoc_folder.py")},
+                {key: "d", label: "Ad Hoc Directory", action: () => OpenFolderInExplorerTab("M:\REPORTS\AD HOC")},
+                {key: "f", label: "Find Ad Hoc Reports", action: () => RunMSYS2("cd /m/REPORTS/'AD HOC' && ff")}
+            ]
+        }
+    }
 
-		switch choice, 0 {
-			case "n":
-				Run("python C:\Users\LUCASFRI\agent_projects\ad-hocs\create_adhoc_folder.py")
-			case "d":
-				OpenFolderInExplorerTab("M:\REPORTS\AD HOC")
-			case "f":
-				RunMSYS2("cd /m/REPORTS/'AD HOC' && ff")
-			default:
-				this.Menu_Main()
-			}
-		}
-	
-	
-	static Menu_Web() {
-		options := [
-			["c", "Confluence"],
-			["b", "Power BI"],
-			["t", "Tidal"],
-			["p", "Pin tab"],
+    static Web() {
+        return {
+            label: "Web",
+            entries: [
+                {key: "c", label: "Confluence", action: () => Run("https://wiki.justice.gov.bc.ca/wiki/spaces/BCPSSR/overview")},
+                {key: "b", label: "Power BI", action: () => Run("https://app.powerbi.com/groups/b168f00d-89db-489c-b5d0-e902b88fc65a/list?tenant=6fdb5200-3d0d-4a8a-b036-d3685e359adc&experience=power-bi")},
+                {key: "t", label: "Tidal", action: () => this.OpenTidal()},
+                {key: "p", label: "Pin tab", action: () => this.PinTab()}
+            ]
+        }
+    }
 
-		]
-		choice := this.WaitForChoice("[W]eb", options)
+    static OpenTidal() {
+        Run("https://tidal.com/")
+        Sleep(500)
+        if WinActive("ahk_exe chrome.exe")
+            this.PinTab()
+    }
 
-		switch choice, 0 {
-			case "c":
-				Run("https://wiki.justice.gov.bc.ca/wiki/spaces/BCPSSR/overview")
-			case "p":
-				if WinActive("ahk_exe chrome.exe")
-				{
-					; Send the menu key (context menu key) while focused on the tab, hit p for pin. u is unpin
-					Send "{F6}{F6}"
-					Send "{AppsKey}{p}"
-				}
-			case "b":
-				Run("https://app.powerbi.com/groups/b168f00d-89db-489c-b5d0-e902b88fc65a/list?tenant=6fdb5200-3d0d-4a8a-b036-d3685e359adc&experience=power-bi")
-			case "t":
-				Run("https://tidal.com/")
-				Sleep(500)
-				if WinActive("ahk_exe chrome.exe") {
-					; Send the menu key (context menu key) while focused on the tab, hit p for pin. u is unpin
-					Send "{F6}{F6}"
-					Send "{AppsKey}{p}"
-				}
-			default:
-				this.Menu_Main()
-		}
-	}
-	
-	static Menu_More() {
-		options := [
-			["2", "Kill AHK scripts"],
-			["3", "Monitor Info"],
-			["w", "Window Spy"], 
-			["d", "AHK Docs"],
-			["r", "Redraw Window"]
-		]
-		choice := this.WaitForChoice("[O]ther AHK", options)
+    static PinTab() {
+        ; Send the menu key while the tab has focus; p pins, u unpins.
+        if WinActive("ahk_exe chrome.exe") {
+            Send("{F6}{F6}")
+            Send("{AppsKey}{p}")
+        }
+    }
 
-		switch choice, 0 {
-			case "w":
-				Run('"' . A_Local . '\programs\AutoHotkey\WindowSpy.ahk"')
-			case "d":
-				Run('"' . A_Local . '\programs\AutoHotkey\v2\AutoHotkey.chm"')
-			case "3":
-				GetMonitorInfo()
-			case "2":
-				 KillActiveScripts()
-			case "r":
-				WinRedraw("A")
-			default:
-				this.Menu_Main()
-			}
-		}
-	
-	; === Choice Selection ===
-	static WaitForChoice(name, options := []) {
-		global gActionMenuDepth
-		gActionMenuDepth += 1
-		try {
-			return this.WaitForChoiceInner(name, options)
-		} finally {
-			gActionMenuDepth -= 1
-		}
-	}
-
-	static WaitForChoiceInner(name, options := []) {
-		tooltipStr := name . "`n"
-		menuFunctionsDict := Map()
-		endKeys := ""
-		
-		if options.Length > 0 {
-			for index, option in options {
-					tooltipStr .=  option[1] . ": " . option[2]
-					endKeys .= option[1]
-					menuFunctionsDict[option[1]] := option[2]
-				if index < options.Length
-					tooltipStr .= "`n"
-				endKeys .= ","
-			}
-		}
-
-		; === Tooltip + Wait for input ===
-		ttGui := ScriptStatusGui(tooltipStr,"center")
-		SetTimer(() => ttGui.Destroy(), -5000)
-		
-		ih := InputHook("L1", "{Pause}{Esc}{Enter}", endKeys)
-		ih.Start()
-		ih.Wait()
-		SetScrollLockState 0
-		ttGui.Destroy()
-
-		if ih.EndReason = "EndKey" && ih.EndKey = "Escape" {
-			return
-		}
-
-		choice := ih.Input
-		if !menuFunctionsDict.Has(choice) {
-			return
-		}
-
-		menuChoice := menuFunctionsDict[choice]
-
-		; if there is a menu matched by the input, call the menu function directly
-		try {
-			this.Menu_%menuChoice%()
-		}
-		; No menu, try options
-		catch {
-			return choice
-		}
-	}
-}	
-
-
+    static More() {
+        return {
+            label: "Other AHK",
+            entries: [
+                {key: "2", label: "Kill AHK scripts", action: KillActiveScripts},
+                {key: "3", label: "Monitor Info", action: GetMonitorInfo},
+                {key: "w", label: "Window Spy", action: () => Run('"' . A_Local . '\programs\AutoHotkey\WindowSpy.ahk"')},
+                {key: "d", label: "AHK Docs", action: () => Run('"' . A_Local . '\programs\AutoHotkey\v2\AutoHotkey.chm"')},
+                {key: "r", label: "Redraw Window", action: () => WinRedraw("A")}
+            ]
+        }
+    }
+}
 
 ;	static Menu_Komorebic() {
 ;		options := [
 ;			["r", "Reload"],
-;			["k", "Kill"],	
+;			["k", "Kill"],
 ;			["s", "Start"],
 ;			["t", "Tile"]
 ;		]
@@ -226,5 +121,5 @@ class ActionMenu {
 ;				Komorebic("retile")
 ;			default:
 ;				this.Menu_Main()
-;			}
 ;		}
+;	}

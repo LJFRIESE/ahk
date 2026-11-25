@@ -15,6 +15,7 @@ InstallMouseHook
 #Include Imports/InputGuard.ahk
 #Include Imports/VimMode.ahk
 #Include Imports/AppLaunchers.ahk
+#Include Imports/MenuEngine.ahk
 #Include Imports/ActionMenu.ahk
 #Include Imports/RemoteWork.ahk
 #Include Imports/Macros.ahk
